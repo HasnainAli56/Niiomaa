@@ -1,0 +1,31 @@
+<svg viewBox="0 0 1761 112" fill="white" xmlns="http://www.w3.org/2000/svg">
+  <!-- Letter N -->
+  <g transform="translate(0, 0)">
+    <path d="M 0 26 L 26 0 H 42 V 32 L 136 102 V 0 H 168 V 86 L 142 112 H 126 V 80 L 32 10 V 112 H 0 Z" fill-rule="evenodd"/>
+  </g>
+
+  <!-- Letter I 1 -->
+  <g transform="translate(370, 0)">
+    <rect x="0" y="0" width="24" height="112" rx="4" />
+  </g>
+
+  <!-- Letter I 2 -->
+  <g transform="translate(574, 0)">
+    <rect x="0" y="0" width="24" height="112" rx="4" />
+  </g>
+
+  <!-- Letter O -->
+  <g transform="translate(808, 0)">
+    <path d="M 0 26 L 26 0 H 141 L 167 26 V 86 L 141 112 H 26 L 0 86 Z M 34 32 H 133 V 80 H 34 Z" fill-rule="evenodd"/>
+  </g>
+
+  <!-- Letter M -->
+  <g transform="translate(1180, 0)">
+    <path d="M 0 26 L 26 0 H 40 L 107 72 L 174 0 H 188 L 214 26 V 112 H 182 V 42 L 122 108 H 92 L 32 42 V 112 H 0 Z" fill-rule="evenodd"/>
+  </g>
+
+  <!-- Letter A -->
+  <g transform="translate(1593, 0)">
+    <path d="M 0 26 L 26 0 H 142 L 168 26 V 112 H 134 L 114 92 H 54 L 34 112 H 0 Z M 34 46 H 134 V 66 H 34 Z M 34 26 L 46 16 H 122 L 134 26 V 34 H 34 Z" fill-rule="evenodd"/>
+  </g>
+</svg>
