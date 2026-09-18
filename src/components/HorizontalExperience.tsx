@@ -2,16 +2,21 @@
 
 import React, { useRef, useEffect, useState } from "react";
 import Image from "next/image";
-import { ArrowLeft, MessageSquare, ExternalLink } from "lucide-react";
-import { NavbarLogo } from "./NavbarLogo";
+import { motion } from "framer-motion";
+import { MessageSquare, ExternalLink } from "lucide-react";
+import { defaultLandingContent } from "@/content/landing-content";
+import { Navbar } from "./Navbar";
 import { EarthGlobe } from "./EarthGlobe";
+import { DramaticText } from "./DramaticText";
 
 interface HorizontalExperienceProps {
   onBackToLanding: () => void;
+  initialSection?: number;
 }
 
 export const HorizontalExperience: React.FC<HorizontalExperienceProps> = ({
   onBackToLanding,
+  initialSection = 0,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -45,6 +50,21 @@ export const HorizontalExperience: React.FC<HorizontalExperienceProps> = ({
     };
   }, []);
 
+  // Jump to initialSection if requested from Landing Page navbar
+  useEffect(() => {
+    if (initialSection !== undefined && initialSection > 0 && containerRef.current) {
+      const sectionWidth = window.innerWidth;
+      setTimeout(() => {
+        if (containerRef.current) {
+          containerRef.current.scrollTo({
+            left: initialSection * sectionWidth,
+            behavior: "smooth",
+          });
+        }
+      }, 60);
+    }
+  }, [initialSection]);
+
   const scrollToSection = (index: number) => {
     const el = containerRef.current;
     if (!el) return;
@@ -55,104 +75,15 @@ export const HorizontalExperience: React.FC<HorizontalExperienceProps> = ({
     });
   };
 
-  const partnerLogos = [
-    "BT",
-    "easyJet",
-    "e&",
-    "Comarch",
-    "Barclays",
-    "Vodafone",
-    "HSBC",
-    "Tesla",
-    "b-yond",
-    "Calsoft",
-    "Yobu",
-    "Alten",
-  ];
-
   return (
     <div className="relative w-full h-screen bg-[#000B1A] overflow-hidden select-none flex flex-col justify-between">
-      {/* 1. Global Fixed Floating Navbar (Matching media_1789642141436.png) */}
-      <header className="fixed top-0 left-0 right-0 z-50 flex justify-center items-center px-4 sm:px-6 pt-4 sm:pt-6 pointer-events-none">
-        <nav
-          className="pointer-events-auto w-full max-w-[1432px] h-[72px] sm:h-[80px] rounded-[100px] px-6 sm:px-10 flex items-center justify-between border border-white/[0.12] transition-all"
-          style={{
-            background: "rgba(112, 47, 160, 0.35)",
-            backdropFilter: "blur(16px)",
-            WebkitBackdropFilter: "blur(16px)",
-            boxShadow:
-              "0 8px 32px rgba(112, 47, 160, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.08)",
-          }}
-        >
-          {/* Brand Logo - Click returns to landing */}
-          <div
-            onClick={onBackToLanding}
-            className="flex-shrink-0 cursor-pointer group flex items-center gap-3"
-            title="Return to Landing"
-          >
-            <NavbarLogo />
-          </div>
-
-          {/* Nav Items from Figma reference */}
-          <div className="hidden xl:flex items-center gap-4 text-[15px] font-medium text-white/85">
-            <button
-              onClick={() => scrollToSection(1)}
-              className="px-4 py-1.5 rounded-full bg-white/15 text-white font-medium hover:bg-white/20 transition"
-            >
-              About ▾
-            </button>
-            <button
-              onClick={() => scrollToSection(0)}
-              className="hover:text-white transition"
-            >
-              Ecosystem orchestration ▾
-            </button>
-            <button
-              onClick={() => scrollToSection(2)}
-              className="hover:text-white transition"
-            >
-              Cognitive services ▾
-            </button>
-            <button
-              onClick={() => scrollToSection(3)}
-              className="hover:text-white transition"
-            >
-              Insights
-            </button>
-            <button
-              onClick={() => scrollToSection(4)}
-              className="hover:text-white transition"
-            >
-              FAQ
-            </button>
-            <button
-              onClick={() => scrollToSection(5)}
-              className="hover:text-white transition"
-            >
-              Membership
-            </button>
-          </div>
-
-          {/* Right Action Items */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={onBackToLanding}
-              className="hidden sm:flex items-center gap-1.5 h-[40px] px-3.5 rounded-[48px] text-[13px] font-medium text-white/80 hover:text-white border border-white/10 hover:bg-white/10 transition"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Back</span>
-            </button>
-
-            <button className="h-[44px] px-5 flex items-center justify-center rounded-[48px] text-[15px] font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/10 backdrop-blur-[2px] transition shadow-sm">
-              Sign in
-            </button>
-
-            <span className="hidden sm:flex items-center gap-1 text-xs font-medium text-white/70 ml-1">
-              🌐 UK - EN
-            </span>
-          </div>
-        </nav>
-      </header>
+      {/* 1. Global Fixed Floating Navbar (Black Glass, matching Landing Page) */}
+      <Navbar
+        content={defaultLandingContent}
+        isInsideExperience={true}
+        onBackToLanding={onBackToLanding}
+        onNavigateSection={scrollToSection}
+      />
 
       {/* 2. Main Horizontal Scroll Container */}
       <div
@@ -164,37 +95,45 @@ export const HorizontalExperience: React.FC<HorizontalExperienceProps> = ({
         {/* SCREEN 1: Home / Discover (with Zoomed 3D Earth Globe)        */}
         {/* ============================================================ */}
         <section className="w-screen h-screen flex-shrink-0 relative snap-start flex flex-col justify-center px-8 sm:px-16 lg:px-24 pt-24 pb-20 overflow-hidden">
-          {/* Ambient Deep Blue Space Glow & Atmospheric Radiance */}
-          {/* 1. Core bright radiant horizon bloom behind Earth apex */}
+          {/* Celestial Cosmic Glow & Nebula Atmosphere behind Earth */}
+          {/* Layer 1: Radiant Electric Cyan Core behind Earth's Horizon */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
               background:
-                "radial-gradient(ellipse 75% 65% at 68% 44%, rgba(14, 165, 233, 0.45) 0%, rgba(2, 132, 199, 0.25) 30%, transparent 65%)",
+                "radial-gradient(circle at 65% 50%, rgba(0, 205, 255, 0.62) 0%, rgba(14, 116, 245, 0.48) 26%, rgba(10, 50, 190, 0.28) 48%, transparent 72%)",
             }}
           />
-          {/* 2. Wide ethereal cyan & royal blue atmospheric diffusion */}
+          {/* Layer 2: Expansive Sapphire/Royal Blue Celestial Aura */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
               background:
-                "radial-gradient(circle at 62% 52%, rgba(56, 189, 248, 0.35) 0%, rgba(37, 99, 235, 0.22) 35%, transparent 70%)",
+                "radial-gradient(ellipse 80% 70% at 70% 52%, rgba(25, 105, 255, 0.58) 0%, rgba(14, 60, 210, 0.42) 34%, rgba(5, 25, 110, 0.28) 60%, transparent 88%)",
             }}
           />
-          {/* 3. Deep celestial navy base glow */}
+          {/* Layer 3: Upper Sky Illumination above the Planet */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
               background:
-                "radial-gradient(ellipse 95% 80% at 75% 72%, rgba(15, 75, 180, 0.5) 0%, rgba(10, 30, 85, 0.25) 50%, transparent 85%)",
+                "radial-gradient(circle at 62% 32%, rgba(30, 144, 255, 0.38) 0%, rgba(10, 50, 160, 0.22) 38%, transparent 68%)",
             }}
           />
-          {/* 4. Soft space glow behind headline text */}
+          {/* Layer 4: Deep Interstellar Blue Underglow */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
               background:
-                "radial-gradient(circle at 22% 52%, rgba(14, 116, 144, 0.16) 0%, transparent 50%)",
+                "radial-gradient(ellipse 95% 85% at 75% 65%, rgba(15, 65, 185, 0.48) 0%, rgba(2, 15, 60, 0.32) 55%, transparent 90%)",
+            }}
+          />
+          {/* Layer 5: Soft Horizon Rim Back-Glow */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                "radial-gradient(ellipse 55% 40% at 52% 54%, rgba(56, 189, 248, 0.32) 0%, rgba(29, 78, 216, 0.16) 35%, transparent 65%)",
             }}
           />
 
@@ -204,17 +143,20 @@ export const HorizontalExperience: React.FC<HorizontalExperienceProps> = ({
           </div>
 
           {/* Subtle soft edge blends for seamless immersion */}
-          <div className="absolute top-0 bottom-0 left-0 w-[35vw] bg-gradient-to-r from-[#000B1A]/90 via-[#000B1A]/60 to-transparent pointer-events-none z-10" />
-          <div className="absolute top-0 left-0 right-0 h-28 bg-gradient-to-b from-[#000B1A]/80 via-[#000B1A]/40 to-transparent pointer-events-none z-10" />
-          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#000B1A]/90 via-[#000B1A]/50 to-transparent pointer-events-none z-10" />
+          <div className="absolute top-0 bottom-0 left-0 w-[42vw] bg-gradient-to-r from-[#000814]/95 via-[#000814]/70 to-transparent pointer-events-none z-10" />
+          <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#000814]/85 via-[#000814]/40 to-transparent pointer-events-none z-10" />
 
-          {/* Content Middle Left (Matching reference media_1789649307799.png) */}
+          {/* Content Middle Left with Dramatic Letter-by-Letter Animation */}
           <div className="relative z-20 max-w-[720px] my-auto pl-2 sm:pl-6 lg:pl-10">
-            <h1 className="text-4xl sm:text-5xl lg:text-[62px] font-bold leading-[1.08] tracking-tight text-white drop-shadow-[0_4px_30px_rgba(0,0,0,0.6)]">
-              The trusted network<br />
-              for technology vendors<br />
-              and enterprises
-            </h1>
+            <DramaticText
+              text={"The trusted network\nfor technology vendors\nand enterprises"}
+              as="h1"
+              whileInView={true}
+              delay={0.25}
+              stagger={0.045}
+              letterDuration={1.25}
+              className="text-4xl sm:text-5xl lg:text-[62px] font-bold leading-[1.08] tracking-tight text-white drop-shadow-[0_4px_30px_rgba(0,0,0,0.6)]"
+            />
           </div>
         </section>
 
@@ -222,13 +164,25 @@ export const HorizontalExperience: React.FC<HorizontalExperienceProps> = ({
         {/* SCREEN 2: About · Overview                                    */}
         {/* ============================================================ */}
         <section className="w-screen h-screen flex-shrink-0 relative snap-start flex flex-col justify-center px-8 sm:px-16 lg:px-24 overflow-hidden">
-          <div className="max-w-[920px] flex flex-col gap-6">
-            <p className="text-[16px] font-medium text-[#5959cf]">
+          <motion.div
+            initial={{ opacity: 0, y: 40, filter: "blur(14px)" }}
+            whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            viewport={{ once: true, amount: 0.25 }}
+            transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
+            className="max-w-[920px] flex flex-col gap-6"
+          >
+            <p className="text-[14px] font-semibold text-[#6e72ee] tracking-widest uppercase">
               Overview
             </p>
-            <h2 className="text-4xl sm:text-5xl lg:text-[64px] font-bold text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/75 leading-[1.05] tracking-tight">
-              NIIOMA is the new operating system for global business
-            </h2>
+            <DramaticText
+              text="NIIOMA is the new operating system for global business"
+              as="h2"
+              whileInView={true}
+              delay={0.2}
+              stagger={0.035}
+              letterDuration={1.15}
+              className="text-4xl sm:text-5xl lg:text-[64px] font-bold text-white leading-[1.05] tracking-tight"
+            />
             <div className="text-[#a9a3c4] text-base sm:text-lg leading-relaxed flex flex-col gap-4 mt-2">
               <p>
                 Our name comes from Neoma, ‘new moon’, Latin in origin, a symbol
@@ -243,37 +197,59 @@ export const HorizontalExperience: React.FC<HorizontalExperienceProps> = ({
                 impact.
               </p>
             </div>
-          </div>
+          </motion.div>
         </section>
 
         {/* ============================================================ */}
         {/* SCREEN 3: About · Vision                                      */}
         {/* ============================================================ */}
         <section className="w-screen h-screen flex-shrink-0 relative snap-start flex flex-col justify-center px-8 sm:px-16 lg:px-24 overflow-hidden">
-          <div className="max-w-[960px] flex flex-col gap-6">
-            <p className="text-[16px] font-medium text-[#5959cf]">
+          <motion.div
+            initial={{ opacity: 0, y: 40, filter: "blur(14px)" }}
+            whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            viewport={{ once: true, amount: 0.25 }}
+            transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
+            className="max-w-[960px] flex flex-col gap-6"
+          >
+            <p className="text-[14px] font-semibold text-[#6e72ee] tracking-widest uppercase">
               Vision
             </p>
-            <h2 className="text-4xl sm:text-5xl lg:text-[64px] font-bold text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/75 leading-[1.05] tracking-tight">
-              A world where AI connects enterprises and vendors seamlessly,
-              opportunity opens at scale, and more people share in it
-            </h2>
-          </div>
+            <DramaticText
+              text={"A world where AI connects enterprises and vendors seamlessly,\nopportunity opens at scale, and more people share in it"}
+              as="h2"
+              whileInView={true}
+              delay={0.2}
+              stagger={0.028}
+              letterDuration={1.15}
+              className="text-4xl sm:text-5xl lg:text-[64px] font-bold text-white leading-[1.05] tracking-tight"
+            />
+          </motion.div>
         </section>
 
         {/* ============================================================ */}
         {/* SCREEN 4: About · Mission                                     */}
         {/* ============================================================ */}
         <section className="w-screen h-screen flex-shrink-0 relative snap-start flex flex-col justify-center px-8 sm:px-16 lg:px-24 overflow-hidden">
-          <div className="max-w-[960px] flex flex-col gap-6">
-            <p className="text-[16px] font-medium text-[#5959cf]">
+          <motion.div
+            initial={{ opacity: 0, y: 40, filter: "blur(14px)" }}
+            whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            viewport={{ once: true, amount: 0.25 }}
+            transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
+            className="max-w-[960px] flex flex-col gap-6"
+          >
+            <p className="text-[14px] font-semibold text-[#6e72ee] tracking-widest uppercase">
               Mission
             </p>
-            <h2 className="text-4xl sm:text-5xl lg:text-[64px] font-bold text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/75 leading-[1.05] tracking-tight">
-              To build the trusted network where enterprises, vendors and
-              people find each other seamlessly
-            </h2>
-          </div>
+            <DramaticText
+              text={"To build the trusted network where enterprises, vendors and\npeople find each other seamlessly"}
+              as="h2"
+              whileInView={true}
+              delay={0.2}
+              stagger={0.03}
+              letterDuration={1.15}
+              className="text-4xl sm:text-5xl lg:text-[64px] font-bold text-white leading-[1.05] tracking-tight"
+            />
+          </motion.div>
         </section>
 
         {/* ============================================================ */}
@@ -282,28 +258,44 @@ export const HorizontalExperience: React.FC<HorizontalExperienceProps> = ({
         <section className="w-screen h-screen flex-shrink-0 relative snap-start flex flex-col justify-center px-8 sm:px-16 lg:px-24 overflow-hidden">
           <div className="w-full max-w-[1400px] flex flex-col lg:flex-row items-center justify-between gap-12">
             {/* Text details */}
-            <div className="max-w-[700px] flex flex-col gap-6">
-              <p className="text-[16px] font-medium text-[#5959cf]">
+            <motion.div
+              initial={{ opacity: 0, y: 40, filter: "blur(14px)" }}
+              whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
+              className="max-w-[700px] flex flex-col gap-6"
+            >
+              <p className="text-[14px] font-semibold text-[#6e72ee] tracking-widest uppercase">
                 Leadership
               </p>
-              <h2 className="text-4xl sm:text-5xl lg:text-[64px] font-bold text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/75 leading-[1.05] tracking-tight">
-                The people behind NIIOMA
-              </h2>
+              <DramaticText
+                text="The people behind NIIOMA"
+                as="h2"
+                whileInView={true}
+                delay={0.2}
+                stagger={0.045}
+                letterDuration={1.2}
+                className="text-4xl sm:text-5xl lg:text-[64px] font-bold text-white leading-[1.05] tracking-tight"
+              />
               <p className="text-[#a9a3c4] text-base sm:text-lg leading-relaxed">
                 Profiles are being finalised. The leadership team brings more
                 than 200 years of combined executive experience across enterprise
                 sales, procurement and transformation.
               </p>
-            </div>
+            </motion.div>
 
             {/* Azam Beyk Interactive Profile Card */}
-            <div
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, filter: "blur(12px)" }}
+              whileInView={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={{ duration: 1.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
               onMouseEnter={() => setIsLeaderHovered(true)}
               onMouseLeave={() => setIsLeaderHovered(false)}
-              className="relative w-[341px] h-[455px] rounded-[12px] border-2 border-white/[0.12] overflow-hidden cursor-pointer transition-all duration-300 group shadow-2xl"
+              className="relative w-[341px] h-[455px] rounded-[16px] border border-white/[0.15] overflow-hidden cursor-pointer transition-all duration-300 group shadow-2xl shadow-black/80"
               style={{
-                background: "rgba(255, 255, 255, 0.04)",
-                backdropFilter: "blur(16px)",
+                background: "rgba(6, 9, 18, 0.65)",
+                backdropFilter: "blur(20px)",
               }}
             >
               {/* Photo */}
@@ -320,7 +312,7 @@ export const HorizontalExperience: React.FC<HorizontalExperienceProps> = ({
               <div className="absolute inset-0 bg-gradient-to-t from-[#000B1A] via-[#000B1A]/60 to-transparent z-10 pointer-events-none" />
 
               {/* Social Icon */}
-              <div className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white border border-white/10 hover:bg-purple-600 transition">
+              <div className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white border border-white/15 hover:bg-purple-600 transition">
                 <ExternalLink className="w-4 h-4" />
               </div>
 
@@ -340,7 +332,7 @@ export const HorizontalExperience: React.FC<HorizontalExperienceProps> = ({
 
               {/* Hover State Detailed Bio */}
               <div
-                className={`absolute inset-0 p-6 z-30 bg-[#000B1A]/90 backdrop-blur-md flex flex-col justify-between transition-all duration-300 ${
+                className={`absolute inset-0 p-6 z-30 bg-[#000B1A]/95 backdrop-blur-md flex flex-col justify-between transition-all duration-300 ${
                   isLeaderHovered
                     ? "opacity-100 pointer-events-auto"
                     : "opacity-0 pointer-events-none"
@@ -362,7 +354,7 @@ export const HorizontalExperience: React.FC<HorizontalExperienceProps> = ({
                   Executive Leader · 20+ Years Experience
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </section>
 
@@ -370,15 +362,25 @@ export const HorizontalExperience: React.FC<HorizontalExperienceProps> = ({
         {/* SCREEN 6: About · Culture                                     */}
         {/* ============================================================ */}
         <section className="w-screen h-screen flex-shrink-0 relative snap-start flex flex-col justify-center px-8 sm:px-16 lg:px-24 overflow-hidden">
-          <div className="max-w-[920px] flex flex-col gap-6">
-            <p className="text-[16px] font-medium text-[#5959cf]">
+          <motion.div
+            initial={{ opacity: 0, y: 40, filter: "blur(14px)" }}
+            whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            viewport={{ once: true, amount: 0.25 }}
+            transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
+            className="max-w-[920px] flex flex-col gap-6"
+          >
+            <p className="text-[14px] font-semibold text-[#6e72ee] tracking-widest uppercase">
               Culture
             </p>
-            <h2 className="text-4xl sm:text-5xl lg:text-[64px] font-bold text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/75 leading-[1.05] tracking-tight">
-              Good hearts. Bright minds.
-              <br />
-              Great attitude.
-            </h2>
+            <DramaticText
+              text={"Good hearts. Bright minds.\nGreat attitude."}
+              as="h2"
+              whileInView={true}
+              delay={0.2}
+              stagger={0.04}
+              letterDuration={1.2}
+              className="text-4xl sm:text-5xl lg:text-[64px] font-bold text-white leading-[1.05] tracking-tight"
+            />
             <p className="text-lg font-medium text-white/90 mt-2">
               People who care. People who can. People who own it.
             </p>
@@ -391,7 +393,7 @@ export const HorizontalExperience: React.FC<HorizontalExperienceProps> = ({
               hours, four days and six hours, and give the rest back to AI for
               good.
             </p>
-          </div>
+          </motion.div>
         </section>
 
         {/* ============================================================ */}
@@ -400,30 +402,52 @@ export const HorizontalExperience: React.FC<HorizontalExperienceProps> = ({
         <section className="w-screen h-screen flex-shrink-0 relative snap-start flex flex-col justify-center px-8 sm:px-16 lg:px-24 overflow-hidden">
           <div className="w-full max-w-[1400px] flex flex-col lg:flex-row items-center justify-between gap-16">
             {/* Left Stat Box */}
-            <div className="max-w-[720px] flex flex-col gap-6">
-              <p className="text-[16px] font-medium text-[#5959cf]">
+            <motion.div
+              initial={{ opacity: 0, y: 40, filter: "blur(14px)" }}
+              whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
+              className="max-w-[720px] flex flex-col gap-6"
+            >
+              <p className="text-[14px] font-semibold text-[#6e72ee] tracking-widest uppercase">
                 AI for Good
               </p>
-              <h2 className="text-4xl sm:text-5xl lg:text-[64px] font-bold text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/75 leading-[1.05] tracking-tight">
-                Technology only matters
-                <br />
-                when it uplifts people
-              </h2>
+              <DramaticText
+                text={"Technology only matters\nwhen it uplifts people"}
+                as="h2"
+                whileInView={true}
+                delay={0.2}
+                stagger={0.04}
+                letterDuration={1.2}
+                className="text-4xl sm:text-5xl lg:text-[64px] font-bold text-white leading-[1.05] tracking-tight"
+              />
 
               <div className="flex items-center gap-8 pt-4">
-                <div className="text-7xl sm:text-8xl lg:text-[90px] font-bold text-white tracking-tight">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                  className="text-7xl sm:text-8xl lg:text-[90px] font-bold text-white tracking-tight"
+                >
                   5%
-                </div>
+                </motion.div>
                 <p className="text-[#a9a3c4] text-base sm:text-lg leading-relaxed max-w-[420px]">
                   of revenue goes to work that applies AI to social and
                   environmental challenges, in partnership with organisations
                   doing this work on the ground.
                 </p>
               </div>
-            </div>
+            </motion.div>
 
             {/* Right Pillars List */}
-            <div className="w-full max-w-[480px] flex flex-col gap-6">
+            <motion.div
+              initial={{ opacity: 0, y: 40, filter: "blur(14px)" }}
+              whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={{ duration: 1.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="w-full max-w-[480px] flex flex-col gap-6"
+            >
               <div className="border-t border-white/20 pt-6">
                 <h3 className="text-2xl sm:text-3xl font-medium text-white/80 hover:text-white transition">
                   AI for children
@@ -439,36 +463,69 @@ export const HorizontalExperience: React.FC<HorizontalExperienceProps> = ({
                   AI for food security
                 </h3>
               </div>
-            </div>
+            </motion.div>
           </div>
         </section>
       </div>
 
-      {/* 3. Global Fixed Bottom Footer (Matching media_1789642141436.png) */}
-      <footer className="fixed bottom-0 left-0 right-0 z-40 h-[68px] px-8 sm:px-16 border-t border-white/[0.08] bg-[#000B1A]/85 backdrop-blur-md flex items-center justify-between">
-        <div className="text-xs sm:text-sm text-white/60">
+      {/* 3. Global Fixed Bottom Footer (Transparent Frosted Blur with Centered Note) */}
+      <footer
+        className="fixed bottom-0 left-0 right-0 z-40 h-[62px] sm:h-[66px] px-6 sm:px-12 lg:px-16 flex items-center justify-between transition-all select-none"
+        style={{
+          background: "rgba(5, 9, 24, 0.22)",
+          backdropFilter: "blur(24px)",
+          WebkitBackdropFilter: "blur(24px)",
+          borderTop: "1px solid rgba(255, 255, 255, 0.12)",
+          boxShadow: "0 -4px 30px rgba(0, 0, 0, 0.15)",
+        }}
+      >
+        {/* Left: Copyright & Legal */}
+        <div className="text-[12px] sm:text-[13px] text-white/60 hover:text-white/90 font-light tracking-wide transition cursor-pointer select-none drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
           © 2026 NIIOMA Ltd. Legal and contact
         </div>
 
-        {/* Center Tagline & Scroll Indicator */}
-        <div className="flex items-center gap-6">
-          <span className="text-xs text-white/40 hidden md:inline font-light">
+        {/* Center Note: Tagline + Purple Dot + Capsule Progress */}
+        <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-3 select-none pointer-events-none drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
+          <span className="text-[12px] sm:text-[13px] text-white/70 font-light tracking-wide whitespace-nowrap">
             The new operating system for global business
           </span>
-          <div className="w-24 h-1 bg-white/10 rounded-full overflow-hidden hidden sm:block">
-            <div
-              className="h-full bg-purple-500 rounded-full transition-all duration-150"
-              style={{ width: `${Math.max(5, scrollProgress * 100)}%` }}
-            />
+          <div className="hidden sm:flex items-center gap-1.5 pl-1">
+            {/* Glowing purple dot */}
+            <span className="w-1.5 h-1.5 rounded-full bg-purple-400 shadow-[0_0_8px_#c084fc]" />
+            {/* Capsule track */}
+            <div className="w-16 sm:w-20 h-[3px] bg-white/15 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-purple-400 to-blue-400 rounded-full transition-all duration-300"
+                style={{ width: `${Math.max(12, scrollProgress * 100)}%` }}
+              />
+            </div>
           </div>
         </div>
 
-        {/* Chat with NIIOMA Button (Pill shaped) */}
-        <button className="flex items-center gap-2 h-[38px] px-4 rounded-full text-[13px] font-medium text-white bg-[#702FA0]/50 border border-white/15 hover:bg-[#702FA0]/75 backdrop-blur-[2px] transition shadow-sm">
-          <MessageSquare className="w-3.5 h-3.5" />
+        {/* Right: Chat with NIIOMA Purple Glass Pill Button */}
+        <button
+          type="button"
+          className="flex items-center gap-2 h-[38px] px-4 sm:px-5 rounded-full text-[13px] font-medium text-white transition-all select-none cursor-pointer"
+          style={{
+            background: "rgba(43, 22, 82, 0.82)",
+            border: "1px solid rgba(168, 85, 247, 0.35)",
+            boxShadow: "0 0 16px rgba(147, 51, 234, 0.2)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(63, 31, 118, 0.92)";
+            e.currentTarget.style.boxShadow = "0 0 22px rgba(168, 85, 247, 0.4)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "rgba(43, 22, 82, 0.82)";
+            e.currentTarget.style.boxShadow = "0 0 16px rgba(147, 51, 234, 0.2)";
+          }}
+        >
+          <MessageSquare className="w-3.5 h-3.5 text-purple-200" />
           <span>Chat with NIIOMA</span>
         </button>
       </footer>
     </div>
   );
 };
+
+export default HorizontalExperience;

@@ -51,20 +51,34 @@ export const NiiomaWordmark: React.FC<NiiomaWordmarkProps> = ({
         aria-label="NIIOMA"
       >
         <g id="NIIOMA Logo">
-          {LETTERS.map((letter, index) => (
-            <motion.g
-              key={letter.id}
-              initial={{ opacity: 0, y: 28 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 1.8,
-                delay: 0.2 + index * 0.14,
-                ease: [0.16, 1, 0.3, 1],
-              }}
-            >
-              <path d={letter.d} fill="white" />
-            </motion.g>
-          ))}
+          {LETTERS.map((letter, index) => {
+            // Arc-synchronized stagger: inner letters dip lower along the arc and emerge first
+            const delays = [1.50, 1.35, 1.20, 1.26, 1.40, 1.58];
+            const delay = delays[index] ?? 1.3 + index * 0.12;
+
+            return (
+              <motion.g
+                key={letter.id}
+                initial={{
+                  opacity: 0,
+                  y: 45,
+                  filter: "blur(20px)",
+                }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                  filter: "blur(0px)",
+                }}
+                transition={{
+                  duration: 2.2,
+                  delay: delay,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+              >
+                <path d={letter.d} fill="white" />
+              </motion.g>
+            );
+          })}
         </g>
       </svg>
     </div>

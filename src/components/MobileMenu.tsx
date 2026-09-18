@@ -10,6 +10,7 @@ interface MobileMenuProps {
   onClose: () => void;
   content: LandingContent;
   onOpenSignIn: () => void;
+  onNavigateSection?: (sectionIndex: number) => void;
 }
 
 export const MobileMenu: React.FC<MobileMenuProps> = ({
@@ -17,6 +18,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
   onClose,
   content,
   onOpenSignIn,
+  onNavigateSection,
 }) => {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
@@ -24,10 +26,36 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
     setExpandedIndex(expandedIndex === idx ? null : idx);
   };
 
+  const handleNavClick = (label: string) => {
+    const lower = label.toLowerCase();
+    if (lower.includes("about")) {
+      onClose();
+      if (onNavigateSection) {
+        onNavigateSection(1);
+      }
+    }
+  };
+
+  const handleSubItemClick = (title: string) => {
+    let target = 1;
+    const lower = title.toLowerCase();
+    if (lower.includes("overview")) target = 1;
+    else if (lower.includes("vision")) target = 2;
+    else if (lower.includes("mission")) target = 3;
+    else if (lower.includes("leadership") || lower.includes("advisory")) target = 4;
+    else if (lower.includes("culture") || lower.includes("principle")) target = 5;
+    else if (lower.includes("ai") || lower.includes("good") || lower.includes("compliance")) target = 6;
+
+    onClose();
+    if (onNavigateSection) {
+      onNavigateSection(target);
+    }
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
+        <div className="fixed inset-0 z-50 xl:hidden">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -43,7 +71,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 bottom-0 w-full max-w-sm bg-[#0c071d] border-l border-white/15 p-6 flex flex-col justify-between overflow-y-auto z-10"
+            className="fixed top-0 right-0 bottom-0 w-full max-w-sm bg-[#06080F]/95 backdrop-blur-2xl border-l border-white/15 p-6 flex flex-col justify-between overflow-y-auto z-10"
           >
             <div>
               {/* Header */}
@@ -53,7 +81,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
                 </span>
                 <button
                   onClick={onClose}
-                  className="p-2 rounded-full text-white/70 hover:text-white hover:bg-white/10"
+                  className="p-2 rounded-full text-white/70 hover:text-white hover:bg-white/10 transition"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -68,19 +96,15 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
                         if (item.hasDropdown) {
                           toggleExpand(idx);
                         } else {
-                          onClose();
+                          handleNavClick(item.label);
                         }
                       }}
-                      className={`flex items-center justify-between px-4 py-3 rounded-xl cursor-pointer transition ${
-                        item.isActive
-                          ? "bg-purple-900/40 text-white font-semibold"
-                          : "text-white/80 hover:text-white hover:bg-white/5"
-                      }`}
+                      className="flex items-center justify-between px-4 py-3 rounded-xl cursor-pointer transition text-white/85 hover:text-white hover:bg-white/[0.08]"
                     >
-                      <span className="text-base">{item.label}</span>
+                      <span className="text-base font-medium">{item.label}</span>
                       {item.hasDropdown && (
                         <ChevronDown
-                          className={`w-4 h-4 transition-transform duration-200 ${
+                          className={`w-4 h-4 transition-transform duration-200 opacity-70 ${
                             expandedIndex === idx ? "rotate-180" : ""
                           }`}
                         />
@@ -93,22 +117,22 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="pl-6 pr-2 py-2 flex flex-col gap-2 border-l-2 border-purple-500/30 ml-4 my-1"
+                        className="pl-6 pr-2 py-2 flex flex-col gap-2 border-l border-white/20 ml-4 my-1"
                       >
                         {item.children?.map((sub, sIdx) => (
-                          <a
+                          <button
                             key={sIdx}
-                            href={sub.href || "#"}
-                            onClick={onClose}
-                            className="text-sm text-white/60 hover:text-white py-1 block"
+                            type="button"
+                            onClick={() => handleSubItemClick(sub.title)}
+                            className="text-left text-sm text-white/70 hover:text-white py-1.5 block transition"
                           >
-                            <span className="font-medium text-white/80 block">
+                            <span className="font-semibold text-white/90 block">
                               {sub.title}
                             </span>
-                            <span className="text-xs text-white/50 block">
+                            <span className="text-xs text-white/50 block mt-0.5">
                               {sub.description}
                             </span>
-                          </a>
+                          </button>
                         ))}
                       </motion.div>
                     )}
@@ -124,7 +148,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
                   onClose();
                   onOpenSignIn();
                 }}
-                className="w-full py-3 px-4 rounded-full border border-white/20 text-white font-semibold hover:bg-white/10 transition text-center"
+                className="w-full py-3 px-4 rounded-full bg-white text-[#06080F] font-semibold hover:bg-white/90 transition text-center shadow-lg shadow-white/10"
               >
                 {content.navigation.signIn.label}
               </button>
@@ -140,3 +164,5 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
     </AnimatePresence>
   );
 };
+
+export default MobileMenu;

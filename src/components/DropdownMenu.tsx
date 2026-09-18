@@ -3,7 +3,7 @@
 import React, { useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-interface DropdownItem {
+export interface DropdownItem {
   title: string;
   description?: string;
   href?: string;
@@ -15,6 +15,7 @@ interface DropdownMenuProps {
   items: DropdownItem[];
   align?: "left" | "center" | "right";
   width?: string;
+  onItemClick?: (item: DropdownItem, index: number) => void;
 }
 
 export const DropdownMenu: React.FC<DropdownMenuProps> = ({
@@ -23,6 +24,7 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
   items,
   align = "center",
   width = "w-72",
+  onItemClick,
 }) => {
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -53,32 +55,39 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
       {isOpen && (
         <motion.div
           ref={menuRef}
-          initial={{ opacity: 0, y: 8, scale: 0.95 }}
+          initial={{ opacity: 0, y: 10, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 6, scale: 0.95 }}
-          transition={{ duration: 0.18, ease: "easeOut" }}
-          className={`absolute top-full mt-3 ${alignmentClass} ${width} z-50 p-2 rounded-2xl bg-[#140a2b]/90 backdrop-blur-xl border border-white/15 shadow-2xl shadow-purple-950/60 overflow-hidden`}
+          exit={{ opacity: 0, y: 8, scale: 0.96 }}
+          transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+          className={`absolute top-full mt-3 ${alignmentClass} ${width} z-50 p-2.5 rounded-2xl bg-[#0e0a1f]/95 backdrop-blur-2xl border border-purple-500/20 shadow-2xl shadow-black/90 overflow-hidden`}
         >
           <div className="flex flex-col gap-1">
             {items.map((item, idx) => (
-              <a
+              <button
                 key={idx}
-                href={item.href || "#"}
-                className="group flex flex-col px-3.5 py-2.5 rounded-xl hover:bg-white/10 transition-colors text-left"
-                onClick={() => onClose()}
+                type="button"
+                className="group flex flex-col px-3.5 py-2.5 rounded-xl hover:bg-white/[0.08] transition-colors text-left w-full select-none"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onClose();
+                  if (onItemClick) {
+                    onItemClick(item, idx);
+                  }
+                }}
               >
                 <span className="text-sm font-semibold text-white/90 group-hover:text-white flex items-center justify-between">
                   {item.title}
-                  <span className="text-xs text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="text-xs text-white/60 opacity-0 group-hover:opacity-100 transition-opacity">
                     →
                   </span>
                 </span>
                 {item.description && (
-                  <span className="text-xs text-white/55 group-hover:text-white/75 mt-0.5 leading-relaxed">
+                  <span className="text-xs text-white/50 group-hover:text-white/75 mt-0.5 leading-relaxed">
                     {item.description}
                   </span>
                 )}
-              </a>
+              </button>
             ))}
           </div>
         </motion.div>
@@ -86,3 +95,5 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
     </AnimatePresence>
   );
 };
+
+export default DropdownMenu;

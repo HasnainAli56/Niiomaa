@@ -46,8 +46,13 @@ export function preloadEarthModel(): Promise<THREE.Group> {
               materials.forEach((m) => {
                 if (m && "roughness" in m) {
                   const mat = m as THREE.MeshStandardMaterial;
-                  mat.roughness = 0.65;
-                  mat.metalness = 0.02;
+                  mat.roughness = 0.42;
+                  mat.metalness = 0.08;
+                  // Vibrant cosmic oceanic blue color multiplier
+                  mat.color.setRGB(0.70, 0.94, 1.45);
+                  // Deep sapphire luminescence for oceans and night side
+                  mat.emissive.setRGB(0.02, 0.08, 0.28);
+                  mat.emissiveIntensity = 0.75;
                   if (mat.map) {
                     mat.map.colorSpace = THREE.SRGBColorSpace;
                   }
@@ -103,7 +108,7 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(width, height);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.05;
+    renderer.toneMappingExposure = 1.22;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.domElement.style.width = "100%";
     renderer.domElement.style.height = "100%";
@@ -111,31 +116,33 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
     container.appendChild(renderer.domElement);
 
     // 4. Lighting setup
-    // Subtle deep navy ambient light so the night side has authentic space depth without being flat
-    const ambientLight = new THREE.AmbientLight(0x061124, 0.4);
+    // Rich deep blue ambient light to bathe oceans and unlit regions in cosmic sapphire
+    const ambientLight = new THREE.AmbientLight(0x0a2f6c, 1.8);
     scene.add(ambientLight);
 
-    // Main directional sunlight from top-left / front-left
-    const sunLight = new THREE.DirectionalLight(0xffffff, 3.2);
+    // Main directional sunlight with clean cool-white spectrum
+    const sunLight = new THREE.DirectionalLight(0xdff2ff, 4.2);
     const sunPos = new THREE.Vector3(-6, 4.2, 4.2);
     sunLight.position.copy(sunPos);
     scene.add(sunLight);
 
-    // Sun direction vector
-    const sunDirNorm = sunPos.clone().normalize();
-
-    // Subtle blue fill grazing light from the top edge
-    const rimFill = new THREE.DirectionalLight(0x38bdf8, 1.8);
-    rimFill.position.set(-3, 5, 2);
+    // Electric cyan rim grazing light on top-left horizon
+    const rimFill = new THREE.DirectionalLight(0x00f0ff, 3.8);
+    rimFill.position.set(-3.5, 5.5, 2.2);
     scene.add(rimFill);
+
+    // Deep blue secondary rim light for edge depth
+    const deepBlueFill = new THREE.DirectionalLight(0x1e50ff, 2.6);
+    deepBlueFill.position.set(-5.5, -2.5, 3.0);
+    scene.add(deepBlueFill);
 
     // 5. Positioning hierarchy
     const rootPositionGroup = new THREE.Group();
     scene.add(rootPositionGroup);
 
-    let currentRadius = 2.95;
-    let currentPosX = 1.95;
-    let currentPosY = -2.38;
+    let currentRadius = 3.05;
+    let currentPosX = 1.90;
+    let currentPosY = -2.25;
 
     const updatePositionAndScale = (w: number, h: number) => {
       const currentAspect = w / h;
@@ -144,17 +151,17 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
       renderer.setSize(w, h);
 
       if (currentAspect >= 1.3) {
-        currentRadius = 2.95;
-        currentPosX = 1.95 * Math.pow(currentAspect / 1.78, 0.65);
-        currentPosY = -2.38;
+        currentRadius = 3.1;
+        currentPosX = 1.85 * Math.pow(currentAspect / 1.78, 0.65);
+        currentPosY = -2.12;
       } else if (currentAspect >= 0.8) {
-        currentRadius = 2.65;
+        currentRadius = 2.8;
         currentPosX = 1.2;
-        currentPosY = -2.1;
+        currentPosY = -1.95;
       } else {
-        currentRadius = 2.4;
+        currentRadius = 2.5;
         currentPosX = 0.2;
-        currentPosY = -1.9;
+        currentPosY = -1.75;
       }
 
       rootPositionGroup.position.set(currentPosX, currentPosY, 0);
@@ -179,12 +186,65 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
 
     const tiltGroup = new THREE.Group();
     // Realistic axial tilt
-    tiltGroup.rotation.z = THREE.MathUtils.degToRad(-16);
-    tiltGroup.rotation.x = THREE.MathUtils.degToRad(18);
+    tiltGroup.rotation.z = THREE.MathUtils.degToRad(-15);
+    tiltGroup.rotation.x = THREE.MathUtils.degToRad(16);
     rootPositionGroup.add(tiltGroup);
 
     const earthPivot = new THREE.Group();
     tiltGroup.add(earthPivot);
+
+    // Atmospheric BackSide Fresnel Glow Mesh
+    const atmosphereVertexShader = `
+      varying vec3 vNormal;
+      void main() {
+        vNormal = normalize(normalMatrix * normal);
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `;
+    const atmosphereFragmentShader = `
+      varying vec3 vNormal;
+      void main() {
+        float intensity = pow(0.70 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.6);
+        vec3 col = mix(vec3(0.0, 0.85, 1.0), vec3(0.12, 0.45, 1.0), intensity);
+        gl_FragColor = vec4(col, 1.0) * intensity * 2.5;
+      }
+    `;
+    const atmosphereMaterial = new THREE.ShaderMaterial({
+      vertexShader: atmosphereVertexShader,
+      fragmentShader: atmosphereFragmentShader,
+      blending: THREE.AdditiveBlending,
+      side: THREE.BackSide,
+      transparent: true,
+      depthWrite: false,
+    });
+    const atmosphereMesh = new THREE.Mesh(
+      new THREE.SphereGeometry(1.026, 64, 64),
+      atmosphereMaterial
+    );
+    earthPivot.add(atmosphereMesh);
+
+    // FrontSide Grazing Rim Light (inner atmosphere edge)
+    const innerRimFrag = `
+      varying vec3 vNormal;
+      void main() {
+        float rim = 1.0 - max(0.0, dot(vNormal, vec3(0.0, 0.0, 1.0)));
+        rim = pow(rim, 3.5);
+        gl_FragColor = vec4(0.0, 0.78, 1.0, rim * 0.95);
+      }
+    `;
+    const innerRimMaterial = new THREE.ShaderMaterial({
+      vertexShader: atmosphereVertexShader,
+      fragmentShader: innerRimFrag,
+      blending: THREE.AdditiveBlending,
+      side: THREE.FrontSide,
+      transparent: true,
+      depthWrite: false,
+    });
+    const innerRimMesh = new THREE.Mesh(
+      new THREE.SphereGeometry(1.004, 64, 64),
+      innerRimMaterial
+    );
+    earthPivot.add(innerRimMesh);
 
     // 6. Load GLTF Model via Preloaded Cache
     preloadEarthModel()

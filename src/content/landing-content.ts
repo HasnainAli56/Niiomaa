@@ -58,19 +58,34 @@ export const defaultLandingContent: LandingContent = {
         isActive: true,
         children: [
           {
+            title: "Overview",
+            description: "The new operating system for global enterprise computing.",
+            href: "#overview",
+          },
+          {
+            title: "Vision",
+            description: "A living global architecture built for trust, scale, and speed.",
+            href: "#vision",
+          },
+          {
             title: "Our Mission",
             description: "Building the digital nervous system for planetary enterprise computing.",
             href: "#mission",
           },
           {
-            title: "Architecture & Security",
-            description: "Zero-trust cognitive infrastructure with military-grade encryption.",
-            href: "#architecture",
-          },
-          {
             title: "Leadership & Advisory",
             description: "Pioneers in distributed computing and enterprise intelligence.",
             href: "#leadership",
+          },
+          {
+            title: "Culture & Principles",
+            description: "Guiding practices that shape our global ecosystem.",
+            href: "#culture",
+          },
+          {
+            title: "AI for Good & Compliance",
+            description: "Applying AI to social and environmental challenges.",
+            href: "#ai-good",
           },
         ],
       },
