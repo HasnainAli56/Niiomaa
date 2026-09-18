@@ -30,7 +30,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark scroll-smooth">
       <head>
-        <link rel="preload" href="/upscaled-video.mp4" as="video" type="video/mp4" />
+        <link rel="preload" href="/landing_poster.webp" as="image" type="image/webp" />
+        <link rel="preload" href="/landing-stream.mp4" as="video" type="video/mp4" />
         <link rel="preload" href="/earth.glb" as="fetch" crossOrigin="anonymous" />
       </head>
       <body className="antialiased bg-[#00142C] text-white min-h-screen selection:bg-[#702FA0] selection:text-white">

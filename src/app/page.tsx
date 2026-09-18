@@ -7,17 +7,31 @@ import { BackgroundVideo } from "@/components/BackgroundVideo";
 import { Navbar } from "@/components/Navbar";
 import { NiiomaWordmark } from "@/components/NiiomaWordmark";
 import { HeroContent } from "@/components/HeroContent";
-import { AboutExperience } from "@/components/HorizontalExperience";
+import { HorizontalExperience } from "@/components/HorizontalExperience";
 import { preloadEarthModel } from "@/components/EarthGlobe";
 
 export default function Home() {
   const content = defaultLandingContent;
   const [isEntered, setIsEntered] = useState(false);
+  const [initialSection, setInitialSection] = useState<string | number>(0);
 
   // Preload 3D Earth model immediately in the background
   useEffect(() => {
     preloadEarthModel().catch(() => {});
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("about") === "true" || window.location.hash.includes("about")) {
+        const sec = params.get("section") || 0;
+        setInitialSection(sec);
+        setIsEntered(true);
+      }
+    }
   }, []);
+
+  const handleEnterExperience = (section: string | number = 0) => {
+    setInitialSection(section);
+    setIsEntered(true);
+  };
 
   return (
     <div className="relative w-full h-screen h-[100dvh] bg-[#000B1A] text-white selection:bg-[#702FA0] selection:text-white overflow-hidden select-none">
@@ -35,7 +49,7 @@ export default function Home() {
             <Navbar
               content={content}
               isInsideExperience={false}
-              onNavigateSection={() => setIsEntered(true)}
+              onNavigateSection={handleEnterExperience}
             />
 
             {/* Background Video (faststart, 0.1s instant streaming) */}
@@ -50,7 +64,7 @@ export default function Home() {
             <div className="absolute left-1/2 -translate-x-1/2 top-[calc(42%+44px)] sm:top-[calc(43%+50px)] md:top-[calc(43%+56px)] lg:top-[calc(43%+62px)] z-30 w-full max-w-[540px] px-4 flex justify-center">
               <HeroContent
                 content={content}
-                onEnter={() => setIsEntered(true)}
+                onEnter={() => handleEnterExperience(0)}
               />
             </div>
           </motion.main>
@@ -63,8 +77,12 @@ export default function Home() {
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             className="relative w-full h-full overflow-hidden"
           >
-            <AboutExperience
-              onBackToLanding={() => setIsEntered(false)}
+            <HorizontalExperience
+              initialSection={initialSection}
+              onBackToLanding={() => {
+                setInitialSection(0);
+                setIsEntered(false);
+              }}
             />
           </motion.div>
         )}

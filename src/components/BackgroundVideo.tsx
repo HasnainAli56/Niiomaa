@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 
 interface BackgroundVideoProps {
   className?: string;
@@ -12,6 +12,7 @@ export const BackgroundVideo: React.FC<BackgroundVideoProps> = ({
   loop = false,
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -19,11 +20,17 @@ export const BackgroundVideo: React.FC<BackgroundVideoProps> = ({
     video.muted = true;
     video.defaultMuted = true;
 
-    const startPlay = () => {
-      if (video.paused) {
-        video.play().catch(() => {});
-      }
+    const onPlay = () => {
+      setIsVideoPlaying(true);
     };
+
+    const startPlay = () => {
+      video.play().then(() => {
+        setIsVideoPlaying(true);
+      }).catch(() => {});
+    };
+
+    video.addEventListener("playing", onPlay, { once: true });
 
     if (video.readyState >= 2) {
       startPlay();
@@ -32,13 +39,30 @@ export const BackgroundVideo: React.FC<BackgroundVideoProps> = ({
       video.addEventListener("canplay", startPlay, { once: true });
       startPlay();
     }
+
+    return () => {
+      video.removeEventListener("playing", onPlay);
+    };
   }, []);
 
   return (
     <div className={className}>
+      {/* 0.001s Instant Poster Frame: Renders immediately with HTML parsing */}
+      <img
+        src="/landing_poster.webp"
+        alt="NIIOMA Cosmic Hero"
+        fetchPriority="high"
+        decoding="sync"
+        className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700 ${
+          isVideoPlaying ? "opacity-0" : "opacity-100"
+        }`}
+      />
+
+      {/* Lightweight faststart video: 3.2MB streamed instantly */}
       <video
         ref={videoRef}
-        src="/upscaled-video.mp4"
+        src="/landing-stream.mp4"
+        poster="/landing_poster.webp"
         autoPlay
         muted
         playsInline
