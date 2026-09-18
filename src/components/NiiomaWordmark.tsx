@@ -39,7 +39,7 @@ export const NiiomaWordmark: React.FC<NiiomaWordmarkProps> = ({
 }) => {
   return (
     <div
-      className={`w-full max-w-[1360px] 2xl:max-w-[1500px] mx-auto select-none pointer-events-none flex items-center justify-center ${className}`}
+      className={`w-full max-w-[1080px] mx-auto select-none pointer-events-none flex items-center justify-center ${className}`}
       aria-label="NIIOMA"
     >
       <svg
@@ -47,7 +47,7 @@ export const NiiomaWordmark: React.FC<NiiomaWordmarkProps> = ({
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         preserveAspectRatio="xMidYMid meet"
-        className="w-full h-auto max-h-[70px] sm:max-h-[82px] md:max-h-[92px] object-contain overflow-visible niioma-electric-glow"
+        className="w-full h-auto max-h-[56px] sm:max-h-[66px] md:max-h-[76px] object-contain overflow-visible niioma-electric-glow"
         aria-label="NIIOMA"
       >
         <g id="NIIOMA Logo">
@@ -61,8 +61,8 @@ export const NiiomaWordmark: React.FC<NiiomaWordmarkProps> = ({
                 key={letter.id}
                 initial={{
                   opacity: 0,
-                  y: 45,
-                  filter: "blur(20px)",
+                  y: 35,
+                  filter: "blur(16px)",
                 }}
                 animate={{
                   opacity: 1,
@@ -70,7 +70,7 @@ export const NiiomaWordmark: React.FC<NiiomaWordmarkProps> = ({
                   filter: "blur(0px)",
                 }}
                 transition={{
-                  duration: 2.2,
+                  duration: 2.0,
                   delay: delay,
                   ease: [0.16, 1, 0.3, 1],
                 }}
@@ -84,3 +84,5 @@ export const NiiomaWordmark: React.FC<NiiomaWordmarkProps> = ({
     </div>
   );
 };
+
+export default NiiomaWordmark;

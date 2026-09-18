@@ -7,73 +7,68 @@ import { BackgroundVideo } from "@/components/BackgroundVideo";
 import { Navbar } from "@/components/Navbar";
 import { NiiomaWordmark } from "@/components/NiiomaWordmark";
 import { HeroContent } from "@/components/HeroContent";
-import { HorizontalExperience } from "@/components/HorizontalExperience";
+import { AboutExperience } from "@/components/HorizontalExperience";
 import { preloadEarthModel } from "@/components/EarthGlobe";
 
 export default function Home() {
   const content = defaultLandingContent;
   const [isEntered, setIsEntered] = useState(false);
-  const [targetSection, setTargetSection] = useState(0);
 
-  // Preload 3D Earth model in the background immediately
+  // Preload 3D Earth model immediately in the background
   useEffect(() => {
     preloadEarthModel().catch(() => {});
   }, []);
 
-  const handleNavigateSection = (sectionIndex: number) => {
-    setTargetSection(sectionIndex);
-    setIsEntered(true);
-  };
-
   return (
-    <AnimatePresence mode="wait">
-      {!isEntered ? (
-        <motion.main
-          key="landing"
-          exit={{ opacity: 0, scale: 1.05 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="relative w-full h-screen h-[100dvh] bg-[#000B1A] overflow-hidden select-none"
-        >
-          {/* 1. Background Video (plays once, not in loop) */}
-          <BackgroundVideo />
-
-          {/* 2. Top Navigation Bar (Black Glass) */}
-          <Navbar
-            content={content}
-            onNavigateSection={handleNavigateSection}
-          />
-
-          {/* 3. Center Branding: Large 'NIIOMA' Text (Locked right on the sticky arc) */}
-          <div className="fixed left-1/2 top-[44%] sm:top-[45%] -translate-x-1/2 -translate-y-1/2 w-[min(92vw,1440px)] px-4 sm:px-6 z-20 pointer-events-none flex justify-center items-center">
-            <NiiomaWordmark />
-          </div>
-
-          {/* 4. Hero Content: Subtitle & CTA Button */}
-          <div className="fixed left-1/2 -translate-x-1/2 top-[calc(44%+55px)] sm:top-[calc(45%+65px)] md:top-[calc(45%+75px)] lg:top-[calc(45%+85px)] z-30 w-full max-w-[660px] px-4 flex justify-center">
-            <HeroContent
+    <div className="relative w-full h-screen h-[100dvh] bg-[#000B1A] text-white selection:bg-[#702FA0] selection:text-white overflow-hidden select-none">
+      <AnimatePresence mode="wait">
+        {!isEntered ? (
+          <motion.main
+            key="landing"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, scale: 1.02 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="relative w-full h-full overflow-hidden flex flex-col justify-center items-center"
+          >
+            {/* Top Navbar */}
+            <Navbar
               content={content}
-              onEnter={() => handleNavigateSection(0)}
+              isInsideExperience={false}
+              onNavigateSection={() => setIsEntered(true)}
             />
-          </div>
-        </motion.main>
-      ) : (
-        <motion.div
-          key="horizontal-experience"
-          initial={{ opacity: 0, scale: 0.96 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full h-screen overflow-hidden"
-        >
-          <HorizontalExperience
-            initialSection={targetSection}
-            onBackToLanding={() => {
-              setTargetSection(0);
-              setIsEntered(false);
-            }}
-          />
-        </motion.div>
-      )}
-    </AnimatePresence>
+
+            {/* Background Video (faststart, 0.1s instant streaming) */}
+            <BackgroundVideo />
+
+            {/* Center Wordmark */}
+            <div className="absolute left-1/2 top-[42%] sm:top-[43%] -translate-x-1/2 -translate-y-1/2 w-[min(84vw,1120px)] px-4 sm:px-6 z-20 pointer-events-none flex justify-center items-center">
+              <NiiomaWordmark />
+            </div>
+
+            {/* Hero CTA Button & Subtitle */}
+            <div className="absolute left-1/2 -translate-x-1/2 top-[calc(42%+44px)] sm:top-[calc(43%+50px)] md:top-[calc(43%+56px)] lg:top-[calc(43%+62px)] z-30 w-full max-w-[540px] px-4 flex justify-center">
+              <HeroContent
+                content={content}
+                onEnter={() => setIsEntered(true)}
+              />
+            </div>
+          </motion.main>
+        ) : (
+          <motion.div
+            key="about"
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="relative w-full h-full overflow-hidden"
+          >
+            <AboutExperience
+              onBackToLanding={() => setIsEntered(false)}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

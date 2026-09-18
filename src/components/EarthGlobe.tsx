@@ -75,12 +75,17 @@ export function preloadEarthModel(): Promise<THREE.Group> {
   return preloadPromise;
 }
 
+// Trigger background model preload immediately in browser
+if (typeof window !== "undefined") {
+  preloadEarthModel().catch(() => {});
+}
+
 export const EarthGlobe: React.FC<EarthGlobeProps> = ({
   className = "",
   autoRotateSpeed = 0.0018,
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!preloadedModelGroup);
   const [arcMetrics, setArcMetrics] = useState<{ cx: number; cy: number; r: number } | null>(null);
 
   useEffect(() => {
@@ -455,4 +460,5 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
     </div>
   );
 };
+
 export default EarthGlobe;

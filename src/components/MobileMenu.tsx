@@ -10,7 +10,7 @@ interface MobileMenuProps {
   onClose: () => void;
   content: LandingContent;
   onOpenSignIn: () => void;
-  onNavigateSection?: (sectionIndex: number) => void;
+  onNavigateSection?: (section: string | number) => void;
 }
 
 export const MobileMenu: React.FC<MobileMenuProps> = ({
@@ -31,20 +31,20 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
     if (lower.includes("about")) {
       onClose();
       if (onNavigateSection) {
-        onNavigateSection(1);
+        onNavigateSection("about");
       }
     }
   };
 
   const handleSubItemClick = (title: string) => {
-    let target = 1;
+    let target = "overview";
     const lower = title.toLowerCase();
-    if (lower.includes("overview")) target = 1;
-    else if (lower.includes("vision")) target = 2;
-    else if (lower.includes("mission")) target = 3;
-    else if (lower.includes("leadership") || lower.includes("advisory")) target = 4;
-    else if (lower.includes("culture") || lower.includes("principle")) target = 5;
-    else if (lower.includes("ai") || lower.includes("good") || lower.includes("compliance")) target = 6;
+    if (lower.includes("overview")) target = "overview";
+    else if (lower.includes("vision")) target = "vision";
+    else if (lower.includes("mission")) target = "mission";
+    else if (lower.includes("leadership") || lower.includes("advisory")) target = "leadership";
+    else if (lower.includes("culture") || lower.includes("principle")) target = "culture";
+    else if (lower.includes("ai") || lower.includes("good") || lower.includes("compliance")) target = "ai-for-good";
 
     onClose();
     if (onNavigateSection) {
