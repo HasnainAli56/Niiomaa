@@ -47,18 +47,24 @@ export const HeroContent: React.FC<HeroContentProps> = ({ content, onEnter }) =>
       >
         <motion.button
           whileHover={{
-            scale: 1.05,
+            scale: 1.04,
             boxShadow:
-              "0 0 28px rgba(255, 255, 255, 0.45), 0 0 20px rgba(112, 47, 160, 0.5)",
+              "0 0 22px rgba(168, 85, 247, 0.5), 0 0 12px rgba(147, 51, 234, 0.35)",
           }}
           whileTap={{ scale: 0.96 }}
           onClick={handleClick}
-          className="relative group flex items-center justify-center h-[36px] sm:h-[38px] px-6 sm:px-7 rounded-[36px] text-xs sm:text-[13px] font-semibold text-[#0a0518] bg-white hover:bg-white/95 transition-all duration-300 select-none overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.3)] cursor-pointer"
+          className="relative group flex items-center justify-center h-[36px] sm:h-[38px] px-6 sm:px-7 rounded-full text-xs sm:text-[13px] font-medium text-white transition-all duration-300 select-none overflow-hidden cursor-pointer"
+          style={{
+            background: "linear-gradient(135deg, #4c248c 0%, #3b1c6e 100%)",
+            border: "1px solid rgba(168, 85, 247, 0.4)",
+            boxShadow:
+              "0 0 16px rgba(147, 51, 234, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15)",
+          }}
         >
-          {/* Subtle sheen highlight */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/[0.04] to-white/40 pointer-events-none" />
+          {/* Subtle glossy sheen highlight */}
+          <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/[0.04] to-white/[0.12] pointer-events-none group-hover:opacity-100 opacity-60 transition-opacity" />
 
-          <span className="relative z-10 font-semibold tracking-tight">
+          <span className="relative z-10 font-medium tracking-tight">
             {clicked ? "Loading..." : content.hero.ctaButton.label}
           </span>
         </motion.button>
