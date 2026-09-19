@@ -50,9 +50,65 @@ export const NiiomaWordmark: React.FC<NiiomaWordmarkProps> = ({
         className="w-full h-auto max-h-[56px] sm:max-h-[66px] md:max-h-[76px] object-contain overflow-visible niioma-electric-glow"
         aria-label="NIIOMA"
       >
-        <g id="NIIOMA Logo">
+        <defs>
+          {/* 1. Base Multi-Stop Frosted Glass Fill Gradient */}
+          <linearGradient id="niioma-glass-fill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.97" />
+            <stop offset="28%" stopColor="#dbeafe" stopOpacity="0.82" />
+            <stop offset="52%" stopColor="#bfdbfe" stopOpacity="0.62" />
+            <stop offset="78%" stopColor="#e0f2fe" stopOpacity="0.78" />
+            <stop offset="100%" stopColor="#ffffff" stopOpacity="0.94" />
+          </linearGradient>
+
+          {/* 2. Glass Edge Bevel Highlight Stroke */}
+          <linearGradient id="niioma-glass-stroke" x1="0" y1="0" x2="1" y2="0.3">
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.95" />
+            <stop offset="22%" stopColor="#38bdf8" stopOpacity="0.75" />
+            <stop offset="48%" stopColor="#ffffff" stopOpacity="1" />
+            <stop offset="72%" stopColor="#c084fc" stopOpacity="0.7" />
+            <stop offset="100%" stopColor="#ffffff" stopOpacity="0.95" />
+          </linearGradient>
+
+          {/* 3. Fast Specular Flowing Sheen Light Beam */}
+          <linearGradient id="glass-flowing-beam-1" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="0" />
+            <stop offset="20%" stopColor="#38bdf8" stopOpacity="0.1" />
+            <stop offset="38%" stopColor="#38bdf8" stopOpacity="0.4" />
+            <stop offset="48%" stopColor="#ffffff" stopOpacity="0.85" />
+            <stop offset="50%" stopColor="#ffffff" stopOpacity="1" />
+            <stop offset="52%" stopColor="#ffffff" stopOpacity="0.85" />
+            <stop offset="62%" stopColor="#c084fc" stopOpacity="0.35" />
+            <stop offset="80%" stopColor="#ffffff" stopOpacity="0.08" />
+            <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+          </linearGradient>
+
+          {/* 4. Secondary Soft Aurora Liquid Sheen Wave */}
+          <linearGradient id="glass-flowing-beam-2" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#38bdf8" stopOpacity="0" />
+            <stop offset="35%" stopColor="#38bdf8" stopOpacity="0.25" />
+            <stop offset="50%" stopColor="#e0f2fe" stopOpacity="0.55" />
+            <stop offset="65%" stopColor="#a855f7" stopOpacity="0.28" />
+            <stop offset="100%" stopColor="#38bdf8" stopOpacity="0" />
+          </linearGradient>
+
+          {/* 5. Top Specular Glass Lip Gloss */}
+          <linearGradient id="glass-top-lip" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.65" />
+            <stop offset="60%" stopColor="#ffffff" stopOpacity="0.1" />
+            <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+          </linearGradient>
+
+          {/* 6. ClipPath for All Letters Combined */}
+          <clipPath id="niioma-all-letters-clip">
+            {LETTERS.map((letter) => (
+              <path key={letter.id} d={letter.d} />
+            ))}
+          </clipPath>
+        </defs>
+
+        {/* Base Glass Letterforms */}
+        <g id="NIIOMA Base Letters">
           {LETTERS.map((letter, index) => {
-            // Arc-synchronized stagger: inner letters dip lower along the arc and emerge first
             const delays = [1.50, 1.35, 1.20, 1.26, 1.40, 1.58];
             const delay = delays[index] ?? 1.3 + index * 0.12;
 
@@ -75,14 +131,82 @@ export const NiiomaWordmark: React.FC<NiiomaWordmarkProps> = ({
                   ease: [0.16, 1, 0.3, 1],
                 }}
               >
-                <path d={letter.d} fill="white" />
+                {/* Frosted Glass Base */}
+                <path
+                  d={letter.d}
+                  fill="url(#niioma-glass-fill)"
+                />
+
+                {/* Polished Glass Bevel Edge Stroke */}
+                <path
+                  d={letter.d}
+                  fill="none"
+                  stroke="url(#niioma-glass-stroke)"
+                  strokeWidth="1.2"
+                  strokeOpacity="0.85"
+                />
               </motion.g>
             );
           })}
         </g>
+
+        {/* Flowing Glassy Sheen Waves (Clipped to Letterforms) */}
+        <motion.g
+          clipPath="url(#niioma-all-letters-clip)"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.2, delay: 2.1 }}
+          style={{ mixBlendMode: "screen" }}
+        >
+          {/* Top Lip Internal Glass Reflection */}
+          <rect
+            x="0"
+            y="0"
+            width="1760.8"
+            height="46"
+            fill="url(#glass-top-lip)"
+          />
+
+          {/* Slower, Wider Ambient Liquid Glass Wave */}
+          <g transform="skewX(-24)">
+            <rect
+              y="-40"
+              width="780"
+              height="200"
+              fill="url(#glass-flowing-beam-2)"
+            >
+              <animate
+                attributeName="x"
+                from="-800"
+                to="2400"
+                dur="5.2s"
+                repeatCount="indefinite"
+              />
+            </rect>
+          </g>
+
+          {/* Fast Specular Caustic Light Beam */}
+          <g transform="skewX(-24)">
+            <rect
+              y="-40"
+              width="500"
+              height="200"
+              fill="url(#glass-flowing-beam-1)"
+            >
+              <animate
+                attributeName="x"
+                from="-600"
+                to="2300"
+                dur="3.4s"
+                repeatCount="indefinite"
+              />
+            </rect>
+          </g>
+        </motion.g>
       </svg>
     </div>
   );
 };
 
 export default NiiomaWordmark;
+
