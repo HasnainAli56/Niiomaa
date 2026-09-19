@@ -30,8 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark scroll-smooth">
       <head>
-        <link rel="preload" href="/landing_poster.webp" as="image" type="image/webp" />
-        <link rel="preload" href="/landing-stream.mp4" as="video" type="video/mp4" />
+        <link rel="preload" href="/homepage-bg.mp4" as="video" type="video/mp4" />
         <link rel="preload" href="/globe_base.png" as="image" type="image/png" />
         <link rel="preload" href="/globe_mask_aligned.png" as="image" type="image/png" />
       </head>
