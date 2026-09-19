@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { defaultLandingContent } from "@/content/landing-content";
-import { BackgroundVideo } from "@/components/BackgroundVideo";
+import { EclipseIntroCanvas } from "@/components/EclipseIntroCanvas";
 import { Navbar } from "@/components/Navbar";
 import { NiiomaWordmark } from "@/components/NiiomaWordmark";
 import { HeroContent } from "@/components/HeroContent";
@@ -49,16 +49,16 @@ export default function Home() {
               onNavigateSection={handleEnterExperience}
             />
 
-            {/* Background Video (faststart, 0.1s instant streaming) */}
-            <BackgroundVideo />
+            {/* Argus Backdrop Canvas Animation (from preview_3.html) */}
+            <EclipseIntroCanvas loop={false} />
 
             {/* Center Wordmark */}
-            <div className="absolute left-1/2 top-[42%] sm:top-[43%] -translate-x-1/2 -translate-y-1/2 w-[min(84vw,1120px)] px-4 sm:px-6 z-20 pointer-events-none flex justify-center items-center">
+            <div className="absolute left-1/2 top-[44%] sm:top-[45%] md:top-[46%] -translate-x-1/2 -translate-y-1/2 w-[min(84vw,1120px)] px-4 sm:px-6 z-20 pointer-events-none flex justify-center items-center">
               <NiiomaWordmark />
             </div>
 
             {/* Hero CTA Button & Subtitle */}
-            <div className="absolute left-1/2 -translate-x-1/2 top-[calc(42%+44px)] sm:top-[calc(43%+50px)] md:top-[calc(43%+56px)] lg:top-[calc(43%+62px)] z-30 w-full max-w-[540px] px-4 flex justify-center">
+            <div className="absolute left-1/2 -translate-x-1/2 top-[calc(44%+85px)] sm:top-[calc(45%+95px)] md:top-[calc(46%+110px)] lg:top-[calc(46%+115px)] z-30 w-full max-w-[540px] px-4 flex justify-center">
               <HeroContent
                 content={content}
                 onEnter={() => handleEnterExperience(0)}

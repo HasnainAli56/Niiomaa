@@ -38,8 +38,23 @@ export const NiiomaWordmark: React.FC<NiiomaWordmarkProps> = ({
   className = "",
 }) => {
   return (
-    <div
-      className={`w-full max-w-[1080px] mx-auto select-none pointer-events-none flex items-center justify-center ${className}`}
+    <motion.div
+      initial={{
+        opacity: 0,
+        scale: 0.76,
+        filter: "blur(14px)",
+      }}
+      animate={{
+        opacity: 1,
+        scale: 1,
+        filter: "blur(0px)",
+      }}
+      transition={{
+        duration: 2.8,
+        delay: 1.1,
+        ease: [0.16, 1, 0.3, 1],
+      }}
+      className={`w-full max-w-[1080px] mx-auto select-none pointer-events-none flex items-center justify-center will-change-transform ${className}`}
       aria-label="NIIOMA"
     >
       <svg
@@ -51,6 +66,53 @@ export const NiiomaWordmark: React.FC<NiiomaWordmarkProps> = ({
         aria-label="NIIOMA"
       >
         <defs>
+          {/* Multi-Layer High Precision Laser Glow Filter */}
+          <filter
+            id="niioma-laser-glow"
+            x="-60%"
+            y="-60%"
+            width="220%"
+            height="220%"
+          >
+            <feGaussianBlur stdDeviation="2.5" result="blur1" />
+            <feGaussianBlur stdDeviation="7" result="blur2" />
+            <feGaussianBlur stdDeviation="18" result="blur3" />
+            <feMerge>
+              <feMergeNode in="blur3" />
+              <feMergeNode in="blur2" />
+              <feMergeNode in="blur1" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+
+          {/* Futuristic Cosmic Neon Path Gradient */}
+          <linearGradient
+            id="niioma-stroke-gradient"
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="100%"
+          >
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="1" />
+            <stop offset="22%" stopColor="#38bdf8" stopOpacity="0.95" />
+            <stop offset="50%" stopColor="#a855f7" stopOpacity="0.92" />
+            <stop offset="78%" stopColor="#38bdf8" stopOpacity="0.95" />
+            <stop offset="100%" stopColor="#ffffff" stopOpacity="1" />
+          </linearGradient>
+
+          {/* Ambient Cosmic Halo (Eclipse Ring Vibe) */}
+          <radialGradient
+            id="niioma-cosmic-eclipse-halo"
+            cx="50%"
+            cy="50%"
+            r="50%"
+          >
+            <stop offset="0%" stopColor="rgba(56, 189, 248, 0.45)" />
+            <stop offset="35%" stopColor="rgba(129, 140, 248, 0.28)" />
+            <stop offset="65%" stopColor="rgba(168, 85, 247, 0.15)" />
+            <stop offset="100%" stopColor="rgba(0, 11, 26, 0)" />
+          </radialGradient>
+
           {/* 1. Base Multi-Stop Frosted Glass Fill Gradient */}
           <linearGradient id="niioma-glass-fill" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#ffffff" stopOpacity="0.97" />
@@ -106,46 +168,124 @@ export const NiiomaWordmark: React.FC<NiiomaWordmarkProps> = ({
           </clipPath>
         </defs>
 
-        {/* Base Glass Letterforms */}
-        <g id="NIIOMA Base Letters">
+        {/* Ambient Cosmic Halo Behind Letters (Syncs with Eclipse Horizon) */}
+        <motion.ellipse
+          cx="880.4"
+          cy="56"
+          rx="760"
+          ry="70"
+          fill="url(#niioma-cosmic-eclipse-halo)"
+          initial={{ opacity: 0, scale: 0.7 }}
+          animate={{
+            opacity: [0, 0.75, 0.45],
+            scale: [0.7, 1.05, 1],
+          }}
+          transition={{
+            duration: 3.8,
+            delay: 1.1,
+            ease: [0.16, 1, 0.3, 1],
+          }}
+          style={{ mixBlendMode: "screen", pointerEvents: "none" }}
+        />
+
+        {/* Base Glass Letterforms & Glowing Stroke Path Assembly */}
+        <g id="NIIOMA Letterforms">
           {LETTERS.map((letter, index) => {
-            const delays = [1.50, 1.35, 1.20, 1.26, 1.40, 1.58];
-            const delay = delays[index] ?? 1.3 + index * 0.12;
+            const delays = [1.2, 1.48, 1.76, 2.04, 2.32, 2.6];
+            const delay = delays[index] ?? 1.2 + index * 0.28;
 
             return (
-              <motion.g
+              <g
                 key={letter.id}
-                initial={{
-                  opacity: 0,
-                  y: 35,
-                  filter: "blur(16px)",
-                }}
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                  filter: "blur(0px)",
-                }}
-                transition={{
-                  duration: 2.0,
-                  delay: delay,
-                  ease: [0.16, 1, 0.3, 1],
+                style={{
+                  transformBox: "fill-box",
+                  transformOrigin: "50% 50%",
                 }}
               >
-                {/* Frosted Glass Base */}
-                <path
+                {/* 1. Solidifying Frosted Glass Body: Materializes inside the glowing stroke contour */}
+                <motion.path
                   d={letter.d}
                   fill="url(#niioma-glass-fill)"
+                  initial={{
+                    opacity: 0,
+                    scale: 0.92,
+                    filter: "blur(8px)",
+                  }}
+                  animate={{
+                    opacity: 1,
+                    scale: 1,
+                    filter: "blur(0px)",
+                  }}
+                  transition={{
+                    duration: 2.2,
+                    delay: delay + 0.75,
+                    ease: [0.16, 1, 0.3, 1],
+                  }}
                 />
 
-                {/* Polished Glass Bevel Edge Stroke */}
-                <path
+                {/* 2. Permanent Glass Bevel Edge Highlight Stroke */}
+                <motion.path
                   d={letter.d}
                   fill="none"
                   stroke="url(#niioma-glass-stroke)"
                   strokeWidth="1.2"
-                  strokeOpacity="0.85"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 0.85 }}
+                  transition={{
+                    duration: 1.8,
+                    delay: delay + 0.95,
+                    ease: [0.16, 1, 0.3, 1],
+                  }}
                 />
-              </motion.g>
+
+                {/* 3. Outer Luminous Neon Path Laser Trace (Draws the letter's outline) */}
+                <motion.path
+                  d={letter.d}
+                  fill="none"
+                  stroke="url(#niioma-stroke-gradient)"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  filter="url(#niioma-laser-glow)"
+                  initial={{
+                    pathLength: 0,
+                    pathOffset: 0,
+                    opacity: 0,
+                  }}
+                  animate={{
+                    pathLength: [0, 1, 1],
+                    opacity: [0, 1, 0.6, 0.25],
+                  }}
+                  transition={{
+                    duration: 2.8,
+                    delay: delay,
+                    ease: [0.16, 1, 0.3, 1],
+                  }}
+                />
+
+                {/* 4. Core White Laser Stroke: Sharp leading edge beam that traces the letter */}
+                <motion.path
+                  d={letter.d}
+                  fill="none"
+                  stroke="#ffffff"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  initial={{
+                    pathLength: 0,
+                    opacity: 0,
+                  }}
+                  animate={{
+                    pathLength: [0, 1, 1],
+                    opacity: [0, 1, 0.85, 0.3],
+                  }}
+                  transition={{
+                    duration: 2.8,
+                    delay: delay,
+                    ease: [0.16, 1, 0.3, 1],
+                  }}
+                />
+              </g>
             );
           })}
         </g>
@@ -155,7 +295,7 @@ export const NiiomaWordmark: React.FC<NiiomaWordmarkProps> = ({
           clipPath="url(#niioma-all-letters-clip)"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 1.2, delay: 2.1 }}
+          transition={{ duration: 2.0, delay: 2.9 }}
           style={{ mixBlendMode: "screen" }}
         >
           {/* Top Lip Internal Glass Reflection */}
@@ -179,7 +319,7 @@ export const NiiomaWordmark: React.FC<NiiomaWordmarkProps> = ({
                 attributeName="x"
                 from="-800"
                 to="2400"
-                dur="5.2s"
+                dur="9.5s"
                 repeatCount="indefinite"
               />
             </rect>
@@ -197,16 +337,15 @@ export const NiiomaWordmark: React.FC<NiiomaWordmarkProps> = ({
                 attributeName="x"
                 from="-600"
                 to="2300"
-                dur="3.4s"
+                dur="6.2s"
                 repeatCount="indefinite"
               />
             </rect>
           </g>
         </motion.g>
       </svg>
-    </div>
+    </motion.div>
   );
 };
 
 export default NiiomaWordmark;
-
