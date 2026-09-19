@@ -58,7 +58,7 @@ export const BackgroundVideo: React.FC<BackgroundVideoProps> = ({
         }`}
       />
 
-      {/* Lightweight faststart video: 3.2MB streamed instantly */}
+      {/* Lightweight faststart video: 1.48MB streamed instantly */}
       <video
         ref={videoRef}
         src="/landing-stream.mp4"
