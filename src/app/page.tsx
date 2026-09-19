@@ -8,16 +8,13 @@ import { Navbar } from "@/components/Navbar";
 import { NiiomaWordmark } from "@/components/NiiomaWordmark";
 import { HeroContent } from "@/components/HeroContent";
 import { HorizontalExperience } from "@/components/HorizontalExperience";
-import { preloadEarthModel } from "@/components/EarthGlobe";
 
 export default function Home() {
   const content = defaultLandingContent;
   const [isEntered, setIsEntered] = useState(false);
   const [initialSection, setInitialSection] = useState<string | number>(0);
 
-  // Preload 3D Earth model immediately in the background
   useEffect(() => {
-    preloadEarthModel().catch(() => {});
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       if (params.get("about") === "true" || window.location.hash.includes("about")) {
@@ -34,7 +31,7 @@ export default function Home() {
   };
 
   return (
-    <div className="relative w-full h-screen h-[100dvh] bg-[#000B1A] text-white selection:bg-[#702FA0] selection:text-white overflow-hidden select-none">
+    <div className="relative w-full h-screen h-[100dvh] bg-[#00102a] text-white selection:bg-[#702FA0] selection:text-white overflow-hidden select-none">
       <AnimatePresence mode="wait">
         {!isEntered ? (
           <motion.main

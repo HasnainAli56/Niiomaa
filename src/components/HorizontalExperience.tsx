@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { MessageSquare, ExternalLink } from "lucide-react";
 import { defaultLandingContent } from "@/content/landing-content";
 import { Navbar } from "./Navbar";
-import { EarthGlobe } from "./EarthGlobe";
 import { DramaticText } from "./DramaticText";
 
 interface HorizontalExperienceProps {
@@ -21,6 +20,9 @@ export const HorizontalExperience: React.FC<HorizontalExperienceProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isLeaderHovered, setIsLeaderHovered] = useState(false);
+  const [isEarthHovered, setIsEarthHovered] = useState(false);
+  const [isTextHovered, setIsTextHovered] = useState(false);
+  const isMaskActive = isEarthHovered || isTextHovered;
 
   // Wheel listener on window: Vertical scroll action -> Horizontal scroll reaction
   useEffect(() => {
@@ -98,7 +100,7 @@ export const HorizontalExperience: React.FC<HorizontalExperienceProps> = ({
   }, [initialSection]);
 
   return (
-    <div className="relative w-full h-screen h-[100dvh] bg-[#000B1A] overflow-hidden select-none flex flex-col justify-between">
+    <div className="relative w-full h-screen h-[100dvh] bg-[#00102a] overflow-hidden select-none flex flex-col justify-between">
       {/* 1. Global Fixed Floating Navbar (Compact Black Glass with Back Button) */}
       <Navbar
         content={defaultLandingContent}
@@ -110,77 +112,72 @@ export const HorizontalExperience: React.FC<HorizontalExperienceProps> = ({
       {/* 2. Horizontal Scroll Container: Vertical Wheel Action -> Horizontal Reaction */}
       <div
         ref={containerRef}
-        className="w-full h-screen overflow-x-auto overflow-y-hidden flex relative z-10"
+        className="w-full h-screen overflow-x-auto overflow-y-hidden flex relative z-10 bg-[#00102a]"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {/* ============================================================ */}
-        {/* Continuous Earth & Celestial Atmosphere Background           */}
-        {/* Anchored on Screen 1 with seamless extension into Screen 2   */}
-        {/* ============================================================ */}
-        <div
-          className="absolute top-0 left-0 w-[145vw] h-screen pointer-events-none z-0 overflow-hidden select-none"
-        >
-          {/* Celestial Cosmic Glow & Nebula Atmosphere behind Earth */}
-          {/* Layer 1: Subtle Pale Blue Rayleigh Atmospheric Core behind Earth's Horizon (#7DB7FF) */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                "radial-gradient(circle 750px at 74vw 48%, rgba(125, 183, 255, 0.16) 0%, rgba(45, 95, 195, 0.18) 25%, rgba(10, 30, 85, 0.14) 50%, transparent 75%)",
-            }}
-          />
-          {/* Layer 2: Expansive Deep Space Midnight Sapphire Aura */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                "radial-gradient(ellipse 1100px 900px at 77vw 52%, rgba(18, 48, 120, 0.25) 0%, rgba(8, 24, 75, 0.18) 38%, rgba(2, 10, 40, 0.10) 65%, transparent 88%)",
-            }}
-          />
-          {/* Layer 3: Upper Sunlit Ambient Scattering */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                "radial-gradient(circle 650px at 72vw 32%, rgba(125, 183, 255, 0.10) 0%, rgba(20, 60, 140, 0.12) 35%, transparent 68%)",
-            }}
-          />
-          {/* Layer 4: Deep Interstellar Midnight Blue Underglow */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                "radial-gradient(ellipse 1300px 1000px at 80vw 65%, rgba(6, 22, 65, 0.24) 0%, rgba(2, 9, 32, 0.15) 55%, transparent 90%)",
-            }}
-          />
-          {/* Layer 5: Horizon Soft Ambient Scattering */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                "radial-gradient(ellipse 700px 480px at 68vw 53%, rgba(125, 183, 255, 0.08) 0%, rgba(15, 45, 110, 0.10) 35%, transparent 65%)",
-            }}
-          />
-
-          {/* 3D Infinite Revolving Earth Globe spanning Screen 1 & seamlessly into Screen 2 */}
-          <div className="absolute inset-0 w-full h-full pointer-events-auto z-0">
-            <EarthGlobe
-              className="w-full h-full"
-              autoRotateSpeed={0.0018}
-            />
-          </div>
-
-          {/* Subtle edge blends for seamless immersion */}
-          <div className="absolute top-0 bottom-0 left-0 w-[42vw] bg-gradient-to-r from-[#000814]/95 via-[#000814]/65 to-transparent pointer-events-none z-10" />
-          <div className="absolute top-0 left-0 right-0 h-28 bg-gradient-to-b from-[#000814]/85 via-[#000814]/40 to-transparent pointer-events-none z-10" />
-        </div>
-
-        {/* ============================================================ */}
         {/* SCREEN 1: Earth Globe & Hero Section                         */}
         {/* ============================================================ */}
-        <section className="w-screen h-screen flex-shrink-0 relative flex flex-col justify-center px-8 sm:px-14 lg:px-20 z-10 pointer-events-none">
+        <section className="w-screen h-screen flex-shrink-0 relative flex flex-col justify-center px-8 sm:px-14 lg:px-20 z-10 overflow-hidden pointer-events-none bg-[#00102a]">
+          {/* Earth Universe Group: Scaled and anchored strictly to Screen 1 lower-right */}
+          <div
+            className="absolute bottom-0 left-[24vw] sm:left-[27vw] lg:left-[30vw] w-[88vw] sm:w-[82vw] lg:w-[78vw] aspect-[2779/1083] pointer-events-none z-0 select-none transition-transform duration-1000 ease-out"
+            style={{
+              transform: isMaskActive ? "scale(1.008)" : "scale(1)",
+              transformOrigin: "51.3% 98.6%",
+            }}
+          >
+            {/* 1. Base Earth Layer */}
+            <img
+              src="/globe_base.png"
+              alt="NIIOMA Global Network Earth"
+              className="w-full h-full object-contain object-bottom pointer-events-none select-none"
+            />
+
+            {/* 2. Interactive Network Mask Layer (Only visible on hover over Earth or Heading text) */}
+            <img
+              src="/globe_mask_aligned.png"
+              alt="NIIOMA Global Connected Nodes"
+              className={`absolute inset-0 w-full h-full object-contain object-bottom pointer-events-none select-none transition-opacity duration-700 ease-out ${
+                isMaskActive ? "opacity-100" : "opacity-0"
+              }`}
+            />
+
+            {/* 3. Subtle Purple Atmospheric Corona Bloom directly over European nodes */}
+            <div
+              className={`absolute inset-0 pointer-events-none transition-opacity duration-700 ease-out ${
+                isMaskActive ? "opacity-55" : "opacity-0"
+              }`}
+              style={{
+                background:
+                  "radial-gradient(ellipse 40% 35% at 50% 50%, rgba(168, 85, 247, 0.32) 0%, rgba(126, 34, 206, 0.12) 45%, transparent 75%)",
+              }}
+            />
+
+            {/* 4. Precision Earth Hover Zone: Strictly covers the actual circular Earth dome */}
+            <svg
+              viewBox="0 0 2779 1083"
+              preserveAspectRatio="xMidYMax meet"
+              className="absolute inset-0 w-full h-full pointer-events-none z-20"
+            >
+              <circle
+                cx="1425"
+                cy="1068"
+                r="1006"
+                fill="rgba(0, 0, 0, 0.001)"
+                className="pointer-events-auto cursor-pointer"
+                onMouseEnter={() => setIsEarthHovered(true)}
+                onMouseLeave={() => setIsEarthHovered(false)}
+              />
+            </svg>
+          </div>
+
           {/* Content Middle Left with Dramatic Letter-by-Letter Animation */}
-          <div className="relative z-20 max-w-[560px] my-auto pl-2 sm:pl-6 lg:pl-10 pointer-events-auto">
+          <div
+            className="relative z-20 max-w-[560px] my-auto pl-2 sm:pl-6 lg:pl-10 pointer-events-auto cursor-pointer group"
+            onMouseEnter={() => setIsTextHovered(true)}
+            onMouseLeave={() => setIsTextHovered(false)}
+          >
             <DramaticText
               text={"The trusted network\nfor technology vendors\nand enterprises"}
               as="h1"
@@ -188,7 +185,7 @@ export const HorizontalExperience: React.FC<HorizontalExperienceProps> = ({
               delay={0.2}
               stagger={0.045}
               letterDuration={1.25}
-              className="text-2xl sm:text-3xl lg:text-[42px] font-bold leading-[1.12] tracking-tight text-white drop-shadow-[0_4px_30px_rgba(0,0,0,0.6)]"
+              className="text-2xl sm:text-3xl lg:text-[42px] font-bold leading-[1.12] tracking-tight text-white drop-shadow-[0_4px_30px_rgba(0,0,0,0.6)] group-hover:text-[#f5edff] transition-colors duration-300"
             />
           </div>
         </section>
@@ -346,7 +343,7 @@ export const HorizontalExperience: React.FC<HorizontalExperienceProps> = ({
               </div>
 
               {/* Bottom Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#000B1A] via-[#000B1A]/60 to-transparent z-10 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#00102a] via-[#00102a]/60 to-transparent z-10 pointer-events-none" />
 
               {/* Social Icon */}
               <div className="absolute top-3.5 right-3.5 z-20 w-7 h-7 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white border border-white/15 hover:bg-purple-600 transition">
@@ -369,7 +366,7 @@ export const HorizontalExperience: React.FC<HorizontalExperienceProps> = ({
 
               {/* Hover State Detailed Bio */}
               <div
-                className={`absolute inset-0 p-5 z-30 bg-[#000B1A]/95 backdrop-blur-md flex flex-col justify-between transition-all duration-300 ${
+                className={`absolute inset-0 p-5 z-30 bg-[#00102a]/95 backdrop-blur-md flex flex-col justify-between transition-all duration-300 ${
                   isLeaderHovered
                     ? "opacity-100 pointer-events-auto"
                     : "opacity-0 pointer-events-none"
