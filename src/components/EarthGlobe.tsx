@@ -160,10 +160,7 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
       }
     `;
 
-    // Outer Atmospheric Limb Shader (Sphere radius ~1.019):
-    // Thin (~1.9% Earth radius), physically proportional to real Earth atmosphere.
-    // Illuminated along sunward limb with soft pale blue #7DB7FF, faint blue-white highlight #B9D9FF near illuminated apex.
-    // Subtle organic irregularity along limb; completely dark on night side.
+    // Outer Atmospheric Limb Shader (Sphere radius ~1.019)
     const outerAtmosphereFrag = `
       uniform vec3 uSunDirection;
 
@@ -178,38 +175,25 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
         float vDotN = -dot(vViewNormal, viewDir);
         if (vDotN <= 0.0) discard;
         
-        // Normalized altitude coordinate: 0.0 at outer atmosphere boundary, 1.0 at Earth surface horizon
-        // For R_atm = 1.019, max -vViewNormal.z at Earth edge is sqrt(1 - (1/1.019)^2) ~= 0.192
         float s = clamp(vDotN / 0.192, 0.0, 1.0);
-        
-        // Physical Rayleigh scattering exponential falloff with altitude
         float falloff = pow(s, 2.2);
 
-        // Sunlit illumination: Rayleigh scatter only occurs where direct sunlight strikes the atmosphere column
         float sunDot = dot(vViewNormal, uSunDirection);
-        // Smooth twilight cutoff into zero darkness on the unlit night side
         float sunFactor = smoothstep(-0.16, 0.38, sunDot);
         if (sunFactor <= 0.001) discard;
 
-        // Subtle organic atmospheric variation (cloud layers, tropospheric variations along limb)
         float n1 = sin(vObjectPosition.x * 14.0 + vObjectPosition.y * 9.0);
         float n2 = sin(vObjectPosition.y * 28.0 - vObjectPosition.z * 18.0);
         float irregularity = 1.0 + 0.08 * (0.6 * n1 + 0.4 * n2);
 
-        // Color specifications:
-        // Soft pale blue: #7DB7FF = rgb(0.490, 0.718, 1.000)
-        // Faint blue-white highlight: #B9D9FF = rgb(0.725, 0.851, 1.000)
-        // Deep space boundary: rgb(0.12, 0.28, 0.60)
         vec3 cPaleBlue = vec3(0.490, 0.718, 1.000);
         vec3 cBlueWhite = vec3(0.725, 0.851, 1.000);
         vec3 cSpaceTransition = vec3(0.120, 0.280, 0.600);
 
-        // Faint blue-white highlight near the illuminated apex where sunlight strikes dense atmosphere
         float apexHighlight = pow(clamp(sunDot, 0.0, 1.0), 2.2) * pow(s, 1.6);
         vec3 limbColor = mix(cPaleBlue, cBlueWhite, clamp(apexHighlight * 0.75, 0.0, 1.0));
         vec3 finalColor = mix(cSpaceTransition, limbColor, smoothstep(0.0, 0.45, s));
 
-        // Low opacity, natural translucent Rayleigh scattering
         float alpha = falloff * sunFactor * irregularity * 0.46;
         gl_FragColor = vec4(finalColor * alpha, alpha);
       }
@@ -228,15 +212,13 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
       depthTest: true,
     });
 
-    // Outer Atmosphere Mesh (Thin ~1.9% layer, BackSide)
     const atmosphereMesh = new THREE.Mesh(
       new THREE.SphereGeometry(1.019, 64, 64),
       atmosphereMaterial
     );
     atmosphereMesh.renderOrder = 2;
 
-    // Diffused Outer Rayleigh Glow (Sphere radius ~1.042, BackSide):
-    // Provides the large blur, subtle diffused scattering and gradual falloff into deep space
+    // Diffused Outer Rayleigh Glow
     const diffusedGlowFrag = `
       uniform vec3 uSunDirection;
 
@@ -248,9 +230,7 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
         float vDotN = -dot(vViewNormal, viewDir);
         if (vDotN <= 0.0) discard;
         
-        // For R = 1.042, edge threshold is sqrt(1 - (1/1.042)^2) ~= 0.28
         float s = clamp(vDotN / 0.28, 0.0, 1.0);
-        // Soft gradual falloff
         float falloff = pow(s, 1.4);
 
         float sunDot = dot(vViewNormal, uSunDirection);
@@ -261,7 +241,6 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
         vec3 cSpaceVoid = vec3(0.060, 0.180, 0.450);
         vec3 glowCol = mix(cSpaceVoid, cPaleBlue, s);
 
-        // Ultra-low opacity wide blur
         float alpha = falloff * sunFactor * 0.18;
         gl_FragColor = vec4(glowCol * alpha, alpha);
       }
@@ -286,8 +265,7 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
     );
     diffusedGlowMesh.renderOrder = 1;
 
-    // Inner Surface Rayleigh Haze (Sphere radius 1.002, FrontSide):
-    // Softly kisses the sunlit horizon of the planet; no hard vector line; zero glow on dark hemisphere.
+    // Inner Surface Rayleigh Haze
     const innerRimFrag = `
       uniform vec3 uSunDirection;
 
@@ -298,27 +276,22 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
       void main() {
         vec3 viewDir = normalize(-vViewPosition);
         
-        // FrontSide grazing Fresnel angle (0.0 facing camera, 1.0 at grazing horizon)
         float vDotN = max(0.0, dot(vViewNormal, viewDir));
         float fresnel = 1.0 - vDotN;
         float grazingHaze = pow(fresnel, 4.2);
 
-        // Sunlight alignment
         float sunDot = dot(vViewNormal, uSunDirection);
         float sunFactor = smoothstep(-0.12, 0.35, sunDot);
         if (sunFactor <= 0.001 || grazingHaze <= 0.001) discard;
 
-        // Subtle organic irregularity
         float n = sin(vObjectPosition.x * 14.0 + vObjectPosition.y * 9.0) * 0.06;
         float irregularity = 1.0 + n;
 
-        // Soft pale blue #7DB7FF with faint blue-white #B9D9FF apex highlight
         vec3 cPaleBlue = vec3(0.490, 0.718, 1.000);
         vec3 cBlueWhite = vec3(0.725, 0.851, 1.000);
         float highlight = pow(clamp(sunDot, 0.0, 1.0), 2.0) * pow(fresnel, 2.2);
         vec3 innerCol = mix(cPaleBlue, cBlueWhite, highlight * 0.55);
 
-        // Very gentle low-opacity grazing haze
         float alpha = grazingHaze * sunFactor * irregularity * 0.30;
         gl_FragColor = vec4(innerCol * alpha, alpha);
       }
@@ -343,21 +316,78 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
     );
     innerRimMesh.renderOrder = 3;
 
+    // ─── HOVER SYSTEM ────────────────────────────────────────────────────────────
+    // Shared uniforms updated per-frame from raycasting result
+    const hoverUniforms = {
+      uHoverDir:    { value: new THREE.Vector3(0, 0, 1) },
+      uGlobeCenter: { value: new THREE.Vector3(0, 0, 0) },
+      uHoverActive: { value: 0.0 },
+    };
+
+    // Back-side blue glow sphere — glows blue on entire back hemisphere on hover
+    const backHoverFrag = `
+      uniform float uHoverActive;
+
+      varying vec3 vViewNormal;
+      varying vec3 vViewPosition;
+
+      void main() {
+        vec3 viewDir = normalize(-vViewPosition);
+        // Back-facing means dot is negative → we want -dot > 0
+        float backFresnel = -dot(vViewNormal, viewDir);
+        if (backFresnel <= 0.0) discard;
+
+        float s = clamp(backFresnel / 0.40, 0.0, 1.0);
+        float falloff = pow(s, 1.6);
+
+        // Bright electric blue
+        vec3 blueCore  = vec3(0.10, 0.45, 1.00);
+        vec3 blueDeep  = vec3(0.05, 0.20, 0.85);
+        vec3 glowColor = mix(blueDeep, blueCore, s);
+
+        float alpha = falloff * uHoverActive * 0.75;
+        gl_FragColor = vec4(glowColor * alpha, alpha);
+      }
+    `;
+
+    const backHoverMaterial = new THREE.ShaderMaterial({
+      vertexShader: atmosphereVertexShader,
+      fragmentShader: backHoverFrag,
+      uniforms: {
+        uHoverActive: hoverUniforms.uHoverActive,
+      },
+      blending: THREE.AdditiveBlending,
+      side: THREE.BackSide,
+      transparent: true,
+      depthWrite: false,
+      depthTest: true,
+    });
+
+    const backHoverMesh = new THREE.Mesh(
+      new THREE.SphereGeometry(1.008, 64, 64),
+      backHoverMaterial
+    );
+    backHoverMesh.renderOrder = 5;
+
+    // Invisible sphere for raycasting (same radius as earth surface in local space)
+    const raycastSphere = new THREE.Mesh(
+      new THREE.SphereGeometry(1.0, 32, 32),
+      new THREE.MeshBasicMaterial({ visible: false, side: THREE.FrontSide })
+    );
+    // ─────────────────────────────────────────────────────────────────────────────
+
     const updatePositionAndScale = (w: number, h: number) => {
       const currentAspect = w / h;
       camera.aspect = currentAspect;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
 
-      // Single-screen dimensions and aspect ratio
       const singleWidth = window.innerWidth;
       const singleAspect = singleWidth / h;
 
-      // Telephoto camera visible dimensions at z=0 (distance 14.0)
       const totalWorldWidth = 2 * 14.0 * Math.tan(THREE.MathUtils.degToRad(8)) * currentAspect;
       const singleWorldWidth = 2 * 14.0 * Math.tan(THREE.MathUtils.degToRad(8)) * singleAspect;
 
-      // Position Earth on right side of Screen 1 (~74% across Screen 1)
       let currentRadius = 2.85;
       let currentPosX = -totalWorldWidth / 2 + 0.74 * singleWorldWidth;
       let currentPosY = -1.95;
@@ -371,7 +401,6 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
       rootPositionGroup.position.set(currentPosX, currentPosY, 0);
       rootPositionGroup.scale.set(currentRadius, currentRadius, currentRadius);
 
-      // Lock light positions relative to Earth
       sunLight.position.set(currentPosX - 7.5, 3.8, 5.0);
       sunLight.target = rootPositionGroup;
       rimFill.position.set(currentPosX - 5.0, 5.0, 2.5);
@@ -379,7 +408,6 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
       deepBlueFill.position.set(currentPosX - 6.5, -2.5, 3.0);
       deepBlueFill.target = rootPositionGroup;
 
-      // Update sun direction in camera view space for atmospheric shaders
       sunDirectionVec.set(-7.5, 3.8 - currentPosY, 5.0).normalize();
       atmosphereMaterial.uniforms.uSunDirection.value.copy(sunDirectionVec);
       diffusedGlowMaterial.uniforms.uSunDirection.value.copy(sunDirectionVec);
@@ -389,7 +417,6 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
     updatePositionAndScale(width, height);
 
     const tiltGroup = new THREE.Group();
-    // Realistic axial tilt
     tiltGroup.rotation.z = THREE.MathUtils.degToRad(-15);
     tiltGroup.rotation.x = THREE.MathUtils.degToRad(16);
     rootPositionGroup.add(tiltGroup);
@@ -397,16 +424,100 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
     const earthPivot = new THREE.Group();
     tiltGroup.add(earthPivot);
 
-    // Attach atmospheric meshes to earth hierarchy
+    // Attach atmospheric meshes
     earthPivot.add(diffusedGlowMesh);
     earthPivot.add(atmosphereMesh);
     earthPivot.add(innerRimMesh);
+    // Hover effect meshes
+    earthPivot.add(backHoverMesh);
+    earthPivot.add(raycastSphere);
 
     // 6. Load GLTF Model via Preloaded Cache
     preloadEarthModel()
       .then((preloadedGroup) => {
         if (!mountRef.current) return;
         const clone = preloadedGroup.clone(true);
+
+        // ── Inject hover-pink shader into each land mesh ─────────────────────────
+        clone.traverse((child) => {
+          if ((child as THREE.Mesh).isMesh) {
+            const mesh = child as THREE.Mesh;
+            const mats = Array.isArray(mesh.material)
+              ? mesh.material
+              : [mesh.material];
+
+            mats.forEach((mat) => {
+              if (mat && "roughness" in mat) {
+                const m = mat as THREE.MeshStandardMaterial;
+
+                m.onBeforeCompile = (shader) => {
+                  // Inject shared hover uniforms
+                  shader.uniforms.uHoverDir    = hoverUniforms.uHoverDir;
+                  shader.uniforms.uGlobeCenter = hoverUniforms.uGlobeCenter;
+                  shader.uniforms.uHoverActive = hoverUniforms.uHoverActive;
+
+                  // Add varying for world-space position in vertex shader
+                  shader.vertexShader = shader.vertexShader.replace(
+                    "#include <common>",
+                    `#include <common>
+                    varying vec3 vWorldPos;`
+                  );
+                  shader.vertexShader = shader.vertexShader.replace(
+                    "#include <worldpos_vertex>",
+                    `#include <worldpos_vertex>
+                    vWorldPos = worldPosition.xyz;`
+                  );
+
+                  // Declare uniforms + varying in fragment shader
+                  shader.fragmentShader = shader.fragmentShader.replace(
+                    "#include <common>",
+                    `#include <common>
+                    uniform vec3  uHoverDir;
+                    uniform vec3  uGlobeCenter;
+                    uniform float uHoverActive;
+                    varying vec3  vWorldPos;`
+                  );
+
+                  // Inject at the very end — after all lighting/tonemapping
+                  shader.fragmentShader = shader.fragmentShader.replace(
+                    "#include <dithering_fragment>",
+                    `#include <dithering_fragment>
+
+                    // ── Hover: pink land, blue back ──────────────────────────
+                    if (uHoverActive > 0.001) {
+                      // Direction from globe center to this fragment (world-space)
+                      vec3 fragDir = normalize(vWorldPos - uGlobeCenter);
+
+                      // Angular distance to hover point
+                      float dotP    = dot(fragDir, uHoverDir);
+                      float angDist = acos(clamp(dotP, -1.0, 1.0));
+
+                      // Hover mask: smooth circle around cursor on sphere
+                      float hoverMask = smoothstep(0.58, 0.0, angDist) * uHoverActive;
+
+                      // Land detection: post-tonemapping, land has more R than B
+                      // Ocean is blue (B > R); land is yellow/brown (R > B)
+                      float isLand = smoothstep(0.0, 0.18, gl_FragColor.r - gl_FragColor.b);
+
+                      // Pink color
+                      vec3 pinkColor = vec3(1.0, 0.18, 0.55);
+                      gl_FragColor.rgb = mix(
+                        gl_FragColor.rgb,
+                        pinkColor,
+                        hoverMask * isLand * 0.82
+                      );
+                    }`
+                  );
+                };
+
+                // Force recompile with new onBeforeCompile
+                m.needsUpdate = true;
+              }
+            });
+          }
+        });
+        // ─────────────────────────────────────────────────────────────────────────
+
         earthPivot.add(clone);
         setIsLoading(false);
       })
@@ -415,11 +526,15 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
         setIsLoading(false);
       });
 
-    // 7. Interactive dragging
+    // 7. Interactive dragging + hover raycasting
     let isDragging = false;
     let previousMousePosition = { x: 0, y: 0 };
     let velocityX = 0;
     let velocityY = 0;
+
+    const raycaster = new THREE.Raycaster();
+    const mouseNDC = new THREE.Vector2();
+    const globeCenter = new THREE.Vector3();
 
     const onPointerDown = (e: PointerEvent) => {
       isDragging = true;
@@ -429,27 +544,68 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
     };
 
     const onPointerMove = (e: PointerEvent) => {
-      if (!isDragging) return;
+      if (isDragging) {
+        const deltaX = e.clientX - previousMousePosition.x;
+        const deltaY = e.clientY - previousMousePosition.y;
 
-      const deltaX = e.clientX - previousMousePosition.x;
-      const deltaY = e.clientY - previousMousePosition.y;
+        earthPivot.rotation.y += deltaX * 0.003;
+        tiltGroup.rotation.x += deltaY * 0.002;
+        tiltGroup.rotation.x = Math.max(-0.4, Math.min(0.5, tiltGroup.rotation.x));
 
-      earthPivot.rotation.y += deltaX * 0.003;
-      tiltGroup.rotation.x += deltaY * 0.002;
-      tiltGroup.rotation.x = Math.max(-0.4, Math.min(0.5, tiltGroup.rotation.x));
+        velocityX = deltaX * 0.003;
+        velocityY = deltaY * 0.002;
 
-      velocityX = deltaX * 0.003;
-      velocityY = deltaY * 0.002;
+        previousMousePosition = { x: e.clientX, y: e.clientY };
+        return;
+      }
 
-      previousMousePosition = { x: e.clientX, y: e.clientY };
+      // ── Hover raycasting ──────────────────────────────────────────────────────
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouseNDC.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouseNDC.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouseNDC, camera);
+      const hits = raycaster.intersectObject(raycastSphere, false);
+
+      if (hits.length > 0) {
+        // World position of globe center
+        rootPositionGroup.getWorldPosition(globeCenter);
+        hoverUniforms.uGlobeCenter.value.copy(globeCenter);
+
+        // Normalized direction from globe center → hit point
+        const hitWorld = hits[0].point;
+        hoverUniforms.uHoverDir.value
+          .copy(hitWorld)
+          .sub(globeCenter)
+          .normalize();
+
+        // Smooth fade in
+        hoverUniforms.uHoverActive.value = Math.min(
+          1.0,
+          hoverUniforms.uHoverActive.value + 0.12
+        );
+      } else {
+        // Smooth fade out
+        hoverUniforms.uHoverActive.value = Math.max(
+          0.0,
+          hoverUniforms.uHoverActive.value - 0.08
+        );
+      }
+      // ─────────────────────────────────────────────────────────────────────────
     };
 
     const onPointerUp = () => {
       isDragging = false;
     };
 
+    const onPointerLeave = () => {
+      // Fade out hover when mouse leaves canvas
+      hoverUniforms.uHoverActive.value = 0.0;
+    };
+
     const domElement = renderer.domElement;
     domElement.addEventListener("pointerdown", onPointerDown);
+    domElement.addEventListener("pointerleave", onPointerLeave);
     window.addEventListener("pointermove", onPointerMove);
     window.addEventListener("pointerup", onPointerUp);
 
@@ -495,6 +651,7 @@ export const EarthGlobe: React.FC<EarthGlobeProps> = ({
       resizeObserver.disconnect();
 
       domElement.removeEventListener("pointerdown", onPointerDown);
+      domElement.removeEventListener("pointerleave", onPointerLeave);
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerup", onPointerUp);
 

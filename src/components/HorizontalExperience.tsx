@@ -7,6 +7,7 @@ import { MessageSquare, ExternalLink } from "lucide-react";
 import { defaultLandingContent } from "@/content/landing-content";
 import { Navbar } from "./Navbar";
 import { DramaticText } from "./DramaticText";
+import { GlobeHoverCanvas } from "./GlobeHoverCanvas";
 
 interface HorizontalExperienceProps {
   onBackToLanding: () => void;
@@ -22,7 +23,26 @@ export const HorizontalExperience: React.FC<HorizontalExperienceProps> = ({
   const [isLeaderHovered, setIsLeaderHovered] = useState(false);
   const [isEarthHovered, setIsEarthHovered] = useState(false);
   const [isTextHovered, setIsTextHovered] = useState(false);
+  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
   const isMaskActive = isEarthHovered || isTextHovered;
+
+  // Convert screen mouse coords to SVG viewBox space
+  const handleGlobeMouseMove = (e: React.MouseEvent<SVGCircleElement>) => {
+    const svg = e.currentTarget.ownerSVGElement;
+    if (!svg) return;
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return;
+    const svgPt = pt.matrixTransform(ctm.inverse());
+    setMousePos({ x: svgPt.x, y: svgPt.y });
+  };
+
+  const handleGlobeMouseLeave = () => {
+    setIsEarthHovered(false);
+    setMousePos(null);
+  };
 
   // Wheel listener on window: Vertical scroll action -> Horizontal scroll reaction
   useEffect(() => {
@@ -154,7 +174,13 @@ export const HorizontalExperience: React.FC<HorizontalExperienceProps> = ({
               }}
             />
 
-            {/* 4. Precision Earth Hover Zone: Strictly covers the actual circular Earth dome */}
+            {/* 4. Globe Hover Canvas: pink land + blue back-side glow */}
+            <GlobeHoverCanvas
+              mousePos={mousePos}
+              isHovered={isEarthHovered}
+            />
+
+            {/* 5. Precision Earth Hover Zone: Strictly covers the actual circular Earth dome */}
             <svg
               viewBox="0 0 2779 1083"
               preserveAspectRatio="xMidYMax meet"
@@ -167,7 +193,8 @@ export const HorizontalExperience: React.FC<HorizontalExperienceProps> = ({
                 fill="rgba(0, 0, 0, 0.001)"
                 className="pointer-events-auto cursor-pointer"
                 onMouseEnter={() => setIsEarthHovered(true)}
-                onMouseLeave={() => setIsEarthHovered(false)}
+                onMouseLeave={handleGlobeMouseLeave}
+                onMouseMove={handleGlobeMouseMove}
               />
             </svg>
           </div>
