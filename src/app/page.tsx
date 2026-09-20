@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { defaultLandingContent } from "@/content/landing-content";
-import { EclipseIntroCanvas } from "@/components/EclipseIntroCanvas";
+import { ArgusBackdropCanvas } from "@/components/ArgusBackdropCanvas";
 import { Navbar } from "@/components/Navbar";
 import { NiiomaWordmark } from "@/components/NiiomaWordmark";
 import { HeroContent } from "@/components/HeroContent";
@@ -49,8 +49,8 @@ export default function Home() {
               onNavigateSection={handleEnterExperience}
             />
 
-            {/* Argus Backdrop Canvas Animation (from preview_3.html) */}
-            <EclipseIntroCanvas loop={false} />
+            {/* Argus Backdrop Canvas Animation (from preview_6.html) */}
+            <ArgusBackdropCanvas loop={false} speed={0.65} />
 
             {/* Center Wordmark */}
             <div className="absolute left-1/2 top-[44%] sm:top-[45%] md:top-[46%] -translate-x-1/2 -translate-y-1/2 w-[min(84vw,1120px)] px-4 sm:px-6 z-20 pointer-events-none flex justify-center items-center">
